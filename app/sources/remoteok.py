@@ -3,6 +3,7 @@ from scrapling.fetchers import FetcherSession
 from app.models.job import RawJob
 from app.sources.base import BaseSource, SourceRateLimited, SourceUnavailable, SourceEmptyResponse
 from app.config import settings
+from app.ingestion.cleaner import clean_text, clean_location, clean_tags, is_valid_job
 
 class RemoteOKSource(BaseSource):
     @property
@@ -11,11 +12,6 @@ class RemoteOKSource(BaseSource):
 
     def fetch(self, session: FetcherSession) -> List[RawJob]:
         try:
-            # We use Scrapling's FetcherSession to do the GET request.
-            # Notice the prompt requested using adaptive re-anchoring as a mock test for JSON endpoints,
-            # but for the actual implementation it's a JSON API, so we parse JSON.
-            # To fulfill "mock Scrapling's adaptive re-anchoring on local fixture", we will do that in testing.
-            # Here, we will just request the JSON.
             response: Response = session.get(settings.REMOTEOK_URL)
         except Exception as e:
             raise SourceUnavailable(f"Network error: {str(e)}")
@@ -41,17 +37,28 @@ class RemoteOKSource(BaseSource):
             
         jobs = []
         for item in data:
-            # RemoteOK often includes a legal/meta object at index 0. Skip it.
             if "legal" in item or not item.get("id"):
                 continue
+            
+            raw_title = item.get("position", "")
+            raw_company = item.get("company", "")
+            
+            if not is_valid_job(raw_title, raw_company):
+                continue
                 
+            title = clean_text(raw_title)
+            company = clean_text(raw_company)
+            location = clean_location(item.get("location", ""))
+            tags = clean_tags(item.get("tags", []), title=title)
+            apply_url = clean_text(item.get("apply_url", item.get("url", "")))
+
             jobs.append(
                 RawJob(
-                    title=item.get("position", "Unknown Title"),
-                    company=item.get("company", "Unknown Company"),
-                    location=item.get("location", ""),
-                    tags=item.get("tags", []),
-                    apply_url=item.get("apply_url", item.get("url", "")),
+                    title=title,
+                    company=company,
+                    location=location,
+                    tags=tags,
+                    apply_url=apply_url,
                     source=self.name
                 )
             )

@@ -1,10 +1,9 @@
-from fastapi import APIRouter, Depends, Query
+from fastapi import APIRouter, Depends, Query, HTTPException
 from sqlmodel import Session, select
 from typing import List, Optional
-from datetime import datetime
+from datetime import datetime, timedelta
 
 from app.storage.db import get_session
-from app.storage.repository import get_latest_jobs
 from app.models.job import Job
 from app.models.ingest_run import IngestRun
 from app.config import settings
@@ -12,10 +11,45 @@ from app.ingestion.health import health_tracker
 
 router = APIRouter()
 
+def generate_job_posting_jsonld(job: Job) -> dict:
+    """Generate Schema.org JobPosting JSON-LD for Google for Jobs SEO indexing."""
+    return {
+        "@context": "https://schema.org/",
+        "@type": "JobPosting",
+        "title": job.title,
+        "description": f"Verified remote job opportunity for {job.title} at {job.company}. Indexed via {job.source} ingestion engine.",
+        "identifier": {
+            "@type": "PropertyValue",
+            "name": job.company,
+            "value": str(job.id)
+        },
+        "datePosted": job.created_at.isoformat() + "Z",
+        "employmentType": "FULL_TIME",
+        "hiringOrganization": {
+            "@type": "Organization",
+            "name": job.company,
+        },
+        "jobLocation": {
+            "@type": "Place",
+            "address": {
+                "@type": "PostalAddress",
+                "addressLocality": job.location or "Remote",
+                "addressCountry": "Global"
+            }
+        },
+        "jobLocationType": "TELECOMMUTE",
+        "applicantLocationRequirements": {
+            "@type": "Country",
+            "name": "WORLDWIDE"
+        },
+        "directApply": True,
+        "url": job.apply_url
+    }
+
 @router.get("/jobs")
 def read_jobs(
     tag: Optional[str] = None,
-    remote: Optional[bool] = None, # Simple text check if true
+    remote: Optional[bool] = None,
     source: Optional[str] = None,
     page: int = Query(1, ge=1),
     session: Session = Depends(get_session)
@@ -29,12 +63,8 @@ def read_jobs(
     if source:
         query = query.where(Job.source == source)
     
-    # We use get_latest_jobs to fetch them ordered by created_at.
-    # To keep it simple, we filter post-fetch for some advanced things or just use basic queries.
-    # We can just apply the same logic as repository's get_latest_jobs directly here since we have filters.
-    
     # Check staleness
-    cutoff = datetime.utcnow() - __import__('datetime').timedelta(minutes=settings.STALE_AFTER_MINUTES)
+    cutoff = datetime.utcnow() - timedelta(minutes=settings.STALE_AFTER_MINUTES)
     recent_run = session.exec(
         select(IngestRun)
         .where(IngestRun.status == "success")
@@ -52,7 +82,14 @@ def read_jobs(
 @router.get("/jobs/{id}")
 def read_job(id: int, session: Session = Depends(get_session)):
     job = session.get(Job, id)
-    return job
+    if not job:
+        raise HTTPException(status_code=404, detail="Job posting not found")
+    
+    jsonld = generate_job_posting_jsonld(job)
+    return {
+        "job": job,
+        "jsonld": jsonld
+    }
 
 @router.get("/health")
 def health_check():

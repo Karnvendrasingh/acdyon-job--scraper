@@ -3,6 +3,7 @@ from scrapling.fetchers import FetcherSession
 from app.models.job import RawJob
 from app.sources.base import BaseSource, SourceRateLimited, SourceUnavailable, SourceEmptyResponse
 from app.config import settings
+from app.ingestion.cleaner import clean_text, clean_location, clean_tags, is_valid_job
 
 class ArbeitnowSource(BaseSource):
     @property
@@ -37,13 +38,25 @@ class ArbeitnowSource(BaseSource):
             
         jobs = []
         for item in jobs_data:
+            raw_title = item.get("title", "")
+            raw_company = item.get("company_name", "")
+            
+            if not is_valid_job(raw_title, raw_company):
+                continue
+
+            title = clean_text(raw_title)
+            company = clean_text(raw_company)
+            location = clean_location(item.get("location", ""))
+            tags = clean_tags(item.get("tags", []), title=title)
+            apply_url = clean_text(item.get("url", ""))
+
             jobs.append(
                 RawJob(
-                    title=item.get("title", "Unknown Title"),
-                    company=item.get("company_name", "Unknown Company"),
-                    location=item.get("location", ""),
-                    tags=item.get("tags", []),
-                    apply_url=item.get("url", ""),
+                    title=title,
+                    company=company,
+                    location=location,
+                    tags=tags,
+                    apply_url=apply_url,
                     source=self.name
                 )
             )

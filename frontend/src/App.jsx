@@ -5,6 +5,7 @@ import Hero from './components/Hero';
 import JobCard from './components/JobCard';
 import JobModal from './components/JobModal';
 import TelemetryModal from './components/TelemetryModal';
+import JobAlertModal from './components/JobAlertModal';
 import Toast from './components/Toast';
 import { AlertCircle, Inbox, RefreshCw, Cpu, Layers, Sparkles } from 'lucide-react';
 
@@ -33,6 +34,7 @@ export default function App() {
   
   const [activeJobModal, setActiveJobModal] = useState(null);
   const [isTelemetryOpen, setIsTelemetryOpen] = useState(false);
+  const [isAlertModalOpen, setIsAlertModalOpen] = useState(false);
   const [toastMessage, setToastMessage] = useState(null);
 
   const triggerToast = (msg) => {
@@ -180,6 +182,7 @@ export default function App() {
         showSavedOnly={showSavedOnly}
         setShowSavedOnly={setShowSavedOnly}
         onOpenTelemetry={() => setIsTelemetryOpen(true)}
+        onOpenAlerts={() => setIsAlertModalOpen(true)}
         telemetryData={telemetryData}
         totalJobsCount={jobs.length}
       />
@@ -346,6 +349,13 @@ export default function App() {
         isRefreshing={isRefreshing}
       />
 
+      <JobAlertModal
+        isOpen={isAlertModalOpen}
+        onClose={() => setIsAlertModalOpen(false)}
+        defaultTag={selectedTag}
+        onTriggerToast={triggerToast}
+      />
+
       <Toast message={toastMessage} />
 
       {/* Footer */}
@@ -379,7 +389,7 @@ export default function App() {
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem', fontSize: '0.75rem', fontWeight: '600' }}>
             <span style={{ padding: '0.35rem 0.7rem', borderRadius: '0.45rem', background: 'rgba(255, 255, 255, 0.04)', color: '#94A3B8' }}>FastAPI</span>
             <span style={{ padding: '0.35rem 0.7rem', borderRadius: '0.45rem', background: 'rgba(255, 255, 255, 0.04)', color: '#94A3B8' }}>Scrapling</span>
-            <span style={{ padding: '0.35rem 0.7rem', borderRadius: '0.45rem', background: 'rgba(255, 255, 255, 0.04)', color: '#94A3B8' }}>Framer Motion</span>
+            <span style={{ padding: '0.35rem 0.7rem', borderRadius: '0.45rem', background: 'rgba(255, 255, 255, 0.04)', color: '#94A3B8' }}>Schema.org JSON-LD</span>
             <span style={{ padding: '0.35rem 0.7rem', borderRadius: '0.45rem', background: 'rgba(59, 130, 246, 0.15)', color: '#3B82F6' }}>React + Vite</span>
           </div>
         </div>

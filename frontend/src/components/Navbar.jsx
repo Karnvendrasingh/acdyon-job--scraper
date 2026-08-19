@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Radar, RefreshCw, Bookmark, Activity, ShieldCheck, Check } from 'lucide-react';
+import { Radar, RefreshCw, Bookmark, Activity, ShieldCheck, Check, Bell } from 'lucide-react';
 import CountUp from './CountUp';
 
 export default function Navbar({ 
@@ -10,6 +10,7 @@ export default function Navbar({
   showSavedOnly, 
   setShowSavedOnly,
   onOpenTelemetry,
+  onOpenAlerts,
   telemetryData,
   totalJobsCount
 }) {
@@ -165,6 +166,29 @@ export default function Navbar({
             </span>
           </motion.button>
 
+          {/* Email Job Alerts Trigger */}
+          <motion.button
+            whileHover={{ scale: 1.03 }}
+            whileTap={{ scale: 0.97 }}
+            onClick={onOpenAlerts}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.45rem',
+              background: 'rgba(59, 130, 246, 0.12)',
+              border: '1px solid rgba(59, 130, 246, 0.3)',
+              color: '#3B82F6',
+              padding: '0.45rem 0.9rem',
+              borderRadius: '0.65rem',
+              fontSize: '0.85rem',
+              fontWeight: '600',
+              cursor: 'pointer'
+            }}
+          >
+            <Bell size={15} />
+            <span>Job Alerts</span>
+          </motion.button>
+
           {/* Bookmarked Jobs */}
           <motion.button
             whileHover={{ scale: 1.03 }}
@@ -200,7 +224,7 @@ export default function Navbar({
             )}
           </motion.button>
 
-          {/* Sync Pipeline Button with Spin / Check Morph */}
+          {/* Sync Pipeline Button with Spin */}
           <motion.button
             whileHover={{ scale: 1.03 }}
             whileTap={{ scale: 0.97 }}

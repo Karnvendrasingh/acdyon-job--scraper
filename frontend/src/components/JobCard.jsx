@@ -1,6 +1,12 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Building2, MapPin, ExternalLink, Bookmark, Share2, Clock, CheckCircle2, Shield } from 'lucide-react';
+
+function getCompanyDomain(company = '') {
+  const sanitized = company.toLowerCase().replace(/[^a-z0-9]/g, '');
+  if (!sanitized) return null;
+  return `${sanitized}.com`;
+}
 
 function getCompanyAvatarGradient(name = 'Company') {
   const colors = [
@@ -56,6 +62,8 @@ export default function JobCard({
   onOpenModal,
   onShareJob 
 }) {
+  const [logoFailed, setLogoFailed] = useState(false);
+
   let tagsList = [];
   if (job.tags) {
     try {
@@ -68,6 +76,46 @@ export default function JobCard({
   const avatarGradient = getCompanyAvatarGradient(job.company);
   const companyInitial = job.company ? job.company.charAt(0).toUpperCase() : 'J';
   const region = getRegionBadge(job.location);
+  const domain = getCompanyDomain(job.company);
+  const logoUrl = domain ? `https://logo.clearbit.com/${domain}` : null;
+
+  const renderLogoAvatar = (size = 44) => {
+    if (logoUrl && !logoFailed) {
+      return (
+        <img
+          src={logoUrl}
+          alt={job.company}
+          onError={() => setLogoFailed(true)}
+          style={{
+            width: `${size}px`,
+            height: `${size}px`,
+            borderRadius: size > 44 ? '14px' : '12px',
+            objectFit: 'cover',
+            background: '#1E293B',
+            border: '1px solid rgba(255, 255, 255, 0.12)',
+            boxShadow: '0 4px 14px rgba(0, 0, 0, 0.35)'
+          }}
+        />
+      );
+    }
+    return (
+      <div style={{
+        width: `${size}px`,
+        height: `${size}px`,
+        borderRadius: size > 44 ? '14px' : '12px',
+        background: avatarGradient,
+        color: '#FFFFFF',
+        fontWeight: '800',
+        fontSize: size > 44 ? '1.3rem' : '1.25rem',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        boxShadow: '0 4px 14px rgba(0, 0, 0, 0.3)'
+      }}>
+        {companyInitial}
+      </div>
+    );
+  };
 
   if (viewMode === 'list') {
     return (
@@ -86,23 +134,9 @@ export default function JobCard({
         }}
       >
         <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', flex: 1, minWidth: 0 }}>
-          {/* Avatar with Verified Badge */}
+          {/* Company Logo / Avatar */}
           <div style={{ position: 'relative', flexShrink: 0 }}>
-            <div style={{
-              width: '44px',
-              height: '44px',
-              borderRadius: '12px',
-              background: avatarGradient,
-              color: '#FFFFFF',
-              fontWeight: '800',
-              fontSize: '1.25rem',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              boxShadow: '0 4px 14px rgba(0, 0, 0, 0.3)'
-            }}>
-              {companyInitial}
-            </div>
+            {renderLogoAvatar(44)}
             <CheckCircle2 size={15} color="#10B981" style={{ position: 'absolute', bottom: '-2px', right: '-2px', background: '#0A0E1A', borderRadius: '50%' }} />
           </div>
 
@@ -214,25 +248,11 @@ export default function JobCard({
       }}
     >
       <div>
-        {/* Top Header: Company Avatar + Region Flag + Actions */}
+        {/* Top Header: Company Logo/Avatar + Region Flag + Actions */}
         <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: '1.1rem' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
             <div style={{ position: 'relative' }}>
-              <div style={{
-                width: '48px',
-                height: '48px',
-                borderRadius: '14px',
-                background: avatarGradient,
-                color: '#FFFFFF',
-                fontWeight: '800',
-                fontSize: '1.3rem',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                boxShadow: '0 4px 14px rgba(0, 0, 0, 0.35)'
-              }}>
-                {companyInitial}
-              </div>
+              {renderLogoAvatar(48)}
               <CheckCircle2 size={16} color="#10B981" style={{ position: 'absolute', bottom: '-2px', right: '-2px', background: '#0A0E1A', borderRadius: '50%' }} />
             </div>
 

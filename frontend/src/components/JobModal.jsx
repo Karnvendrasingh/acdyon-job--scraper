@@ -1,6 +1,6 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Building2, MapPin, ExternalLink, Bookmark, Share2, Calendar, ShieldCheck, Hash, Globe } from 'lucide-react';
+import { X, Building2, MapPin, ExternalLink, Bookmark, Share2, Calendar, ShieldCheck, Hash, Code2 } from 'lucide-react';
 
 export default function JobModal({ job, onClose, isSaved, onToggleSave, onShareJob }) {
   if (!job) return null;
@@ -13,6 +13,54 @@ export default function JobModal({ job, onClose, isSaved, onToggleSave, onShareJ
       tagsList = [];
     }
   }
+
+  // Schema.org JobPosting JSON-LD for Google for Jobs
+  const jsonLd = {
+    "@context": "https://schema.org/",
+    "@type": "JobPosting",
+    "title": job.title,
+    "description": `Verified remote job opportunity for ${job.title} at ${job.company}. Indexed via ${job.source} ingestion engine.`,
+    "identifier": {
+      "@type": "PropertyValue",
+      "name": job.company,
+      "value": String(job.id)
+    },
+    "datePosted": new Date(job.created_at).toISOString(),
+    "employmentType": "FULL_TIME",
+    "hiringOrganization": {
+      "@type": "Organization",
+      "name": job.company
+    },
+    "jobLocation": {
+      "@type": "Place",
+      "address": {
+        "@type": "PostalAddress",
+        "addressLocality": job.location || "Remote",
+        "addressCountry": "Global"
+      }
+    },
+    "jobLocationType": "TELECOMMUTE",
+    "applicantLocationRequirements": {
+      "@type": "Country",
+      "name": "WORLDWIDE"
+    },
+    "directApply": true,
+    "url": job.apply_url
+  };
+
+  useEffect(() => {
+    // Dynamically inject schema.org JSON-LD into document head
+    const script = document.createElement('script');
+    script.type = 'application/ld+json';
+    script.id = 'google-job-posting-jsonld';
+    script.text = JSON.stringify(jsonLd);
+    document.head.appendChild(script);
+
+    return () => {
+      const existing = document.getElementById('google-job-posting-jsonld');
+      if (existing) existing.remove();
+    };
+  }, [job]);
 
   return (
     <AnimatePresence>
@@ -132,6 +180,23 @@ export default function JobModal({ job, onClose, isSaved, onToggleSave, onShareJ
               </div>
             </div>
           )}
+
+          {/* Google for Jobs Structured Data Indicator */}
+          <div style={{
+            padding: '0.85rem 1rem',
+            background: 'rgba(16, 185, 129, 0.06)',
+            border: '1px solid rgba(16, 185, 129, 0.2)',
+            borderRadius: '0.6rem',
+            marginBottom: '1.5rem',
+            fontSize: '0.775rem',
+            color: '#94A3B8',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '0.5rem'
+          }}>
+            <Code2 size={16} color="#10B981" />
+            <span>Google for Jobs Structured Data (`JobPosting` schema.org) Active for this Listing</span>
+          </div>
 
           {/* Deduplication Hash */}
           <div style={{
