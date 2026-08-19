@@ -1,0 +1,11 @@
+fastapi
+uvicorn
+scrapling[fetchers]
+sqlmodel
+apscheduler
+pytest
+requests
+jinja2
+python-dotenv
+httpx
+pydantic-settings

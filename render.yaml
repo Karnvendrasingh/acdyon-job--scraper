@@ -1,0 +1,19 @@
+services:
+  - type: web
+    name: job-radar
+    env: docker
+    plan: free
+    healthCheckPath: /health
+    envVars:
+      - key: INGEST_INTERVAL_MINUTES
+        value: "30"
+      - key: DB_URL
+        value: "sqlite:///./jobs.db"
+      - key: RATE_LIMIT_BASE_DELAY_SECONDS
+        value: "3"
+      - key: FAILURE_THRESHOLD
+        value: "3"
+      - key: REMOTEOK_URL
+        value: "https://remoteok.com/api"
+      - key: ARBEITNOW_URL
+        value: "https://www.arbeitnow.com/api/job-board-api"

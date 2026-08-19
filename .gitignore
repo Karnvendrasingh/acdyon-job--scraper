@@ -1,0 +1,20 @@
+# Environments
+venv/
+env/
+.env
+
+# Python artifacts
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.pytest_cache/
+
+# Databases
+jobs.db
+*.sqlite3
+
+# IDE / OS
+.vscode/
+.idea/
+.DS_Store
