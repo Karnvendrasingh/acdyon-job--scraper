@@ -15,7 +15,7 @@ For full technical analysis of anti-bot detection surfaces, ingestion strategies
 
 ### Option 1: Render Deployment (Recommended)
 
-1. Fork or push this repository to GitHub: `https://github.com/Karnvendrasingh/AcdyOn-scraper.git`
+1. Fork or push this repository to GitHub: `https://github.com/Karnvendrasingh/acdyon-job--scraper.git`
 2. Create a new **Web Service** on [Render](https://render.com).
 3. Select **Docker** environment (or use `render.yaml` Blueprint).
 4. Render automatically detects the multi-stage [`Dockerfile`](file:///d:/job-radar/scraper/Dockerfile), builds the Vite React frontend, sets up Python 3.11, and starts the server with the dynamic `$PORT`.
