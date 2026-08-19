@@ -6,7 +6,6 @@ env/
 # Node / Frontend
 node_modules/
 frontend/node_modules/
-frontend/dist/
 
 # Python artifacts
 __pycache__/
