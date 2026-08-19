@@ -170,8 +170,10 @@ export default function App() {
   return (
     <div style={{ position: 'relative', minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
       
-      {/* Radial Gradient Canvas */}
-      <div className="ambient-canvas" />
+      {/* Radial Gradient Canvas with Rotating Radar Sweep */}
+      <div className="ambient-canvas">
+        <div className="radar-sweep-beam" />
+      </div>
       <div className="grid-texture" />
 
       {/* Navbar Header */}
@@ -308,25 +310,30 @@ export default function App() {
               )}
             </motion.div>
           ) : (
-            /* Cards Container */
-            <div style={{
-              display: 'grid',
-              gridTemplateColumns: viewMode === 'grid' ? 'repeat(auto-fill, minmax(340px, 1fr))' : '1fr',
-              gap: '1.35rem'
-            }}>
-              {filteredJobs.map(job => (
-                <JobCard
-                  key={job.id}
-                  job={job}
-                  viewMode={viewMode}
-                  isSaved={savedJobIds.includes(job.id)}
-                  onToggleSave={toggleSaveJob}
-                  onSelectTag={(t) => setSelectedTag(t)}
-                  onOpenModal={(j) => setActiveJobModal(j)}
-                  onShareJob={handleShareJob}
-                />
-              ))}
-            </div>
+            /* Animated Layout Cards Container */
+            <motion.div 
+              layout
+              style={{
+                display: 'grid',
+                gridTemplateColumns: viewMode === 'grid' ? 'repeat(auto-fill, minmax(340px, 1fr))' : '1fr',
+                gap: '1.35rem'
+              }}
+            >
+              <AnimatePresence mode="popLayout">
+                {filteredJobs.map(job => (
+                  <JobCard
+                    key={job.id}
+                    job={job}
+                    viewMode={viewMode}
+                    isSaved={savedJobIds.includes(job.id)}
+                    onToggleSave={toggleSaveJob}
+                    onSelectTag={(t) => setSelectedTag(t)}
+                    onOpenModal={(j) => setActiveJobModal(j)}
+                    onShareJob={handleShareJob}
+                  />
+                ))}
+              </AnimatePresence>
+            </motion.div>
           )}
 
         </section>
