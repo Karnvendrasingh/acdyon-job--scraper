@@ -10,6 +10,10 @@ RUN npm run build
 FROM python:3.11-slim
 WORKDIR /app
 
+# Set Python environment variables
+ENV PYTHONUNBUFFERED=1 \
+    PYTHONPATH=/app
+
 # Install build dependencies
 RUN apt-get update && apt-get install -y --no-install-recommends \
     gcc \
