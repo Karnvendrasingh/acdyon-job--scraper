@@ -3,12 +3,12 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Search, Sparkles, SlidersHorizontal, ArrowUpDown, LayoutGrid, List, Globe2, ShieldCheck, Zap } from 'lucide-react';
 import CountUp from './CountUp';
 
-const SEARCH_PLACEHOLDERS = [
-  "Search 'React Remote'...",
-  "Search 'Golang Senior'...",
-  "Search 'Python AI Engine'...",
-  "Search 'Staff Architect'...",
-  "Search 'Full Stack Lead'..."
+const SEARCH_TERMS = [
+  "React Remote",
+  "Golang Senior",
+  "Python AI Engine",
+  "Staff Architect",
+  "Full Stack Lead"
 ];
 
 const POPULAR_TAGS = [
@@ -39,44 +39,72 @@ export default function Hero({
   totalJobsCount,
   showSavedOnly
 }) {
-  const [placeholderIndex, setPlaceholderIndex] = useState(0);
+  const [typedText, setTypedText] = useState('');
+  const [termIndex, setTermIndex] = useState(0);
+  const [isDeleting, setIsDeleting] = useState(false);
   const [isSearchFocused, setIsSearchFocused] = useState(false);
 
-  // Cycle placeholder strings automatically
+  // Typewriter effect logic: type -> pause -> backspace -> next term
   useEffect(() => {
-    const interval = setInterval(() => {
-      setPlaceholderIndex((prev) => (prev + 1) % SEARCH_PLACEHOLDERS.length);
-    }, 3200);
-    return () => clearInterval(interval);
-  }, []);
+    const currentTerm = SEARCH_TERMS[termIndex];
+    let speed = isDeleting ? 40 : 80;
+
+    if (!isDeleting && typedText === currentTerm) {
+      speed = 2200; // Pause at end of word
+    } else if (isDeleting && typedText === '') {
+      setIsDeleting(false);
+      setTermIndex((prev) => (prev + 1) % SEARCH_TERMS.length);
+      speed = 400;
+    }
+
+    const timer = setTimeout(() => {
+      if (!isDeleting && typedText !== currentTerm) {
+        setTypedText(currentTerm.slice(0, typedText.length + 1));
+      } else if (isDeleting && typedText !== '') {
+        setTypedText(currentTerm.slice(0, typedText.length - 1));
+      } else if (!isDeleting && typedText === currentTerm) {
+        setIsDeleting(true);
+      }
+    }, speed);
+
+    return () => clearTimeout(timer);
+  }, [typedText, isDeleting, termIndex]);
 
   // Framer Motion word reveal variants
-  const containerVariants = {
+  const wordContainerVariants = {
     hidden: { opacity: 0 },
     visible: {
       opacity: 1,
-      transition: { staggerChildren: 0.08, delayChildren: 0.1 }
+      transition: { staggerChildren: 0.05, delayChildren: 0.1 }
     }
   };
 
-  const itemVariants = {
-    hidden: { opacity: 0, y: 20 },
-    visible: { opacity: 1, y: 0, transition: { duration: 0.5, ease: [0.16, 1, 0.3, 1] } }
+  const wordItemVariants = {
+    hidden: { opacity: 0, y: 15 },
+    visible: { opacity: 1, y: 0, transition: { duration: 0.4, ease: [0.16, 1, 0.3, 1] } }
   };
 
   return (
-    <section style={{ maxWidth: '1240px', margin: '2rem auto 1.5rem', padding: '0 1.5rem' }}>
+    <section style={{ position: 'relative', maxWidth: '1240px', margin: '2rem auto 1.5rem', padding: '0 1.5rem' }}>
       
+      {/* Scanline Sweep Diagonal Light Beam */}
+      <div className="scanline-sweep" />
+
+      {/* Upward Floating Hero Data Packet Particles */}
+      <div className="hero-particle" style={{ left: '15%', bottom: '10%', animationDelay: '0s' }} />
+      <div className="hero-particle" style={{ left: '45%', bottom: '5%', animationDelay: '2.5s' }} />
+      <div className="hero-particle" style={{ left: '80%', bottom: '15%', animationDelay: '4.8s' }} />
+
       {/* Hero Headline & Subtitle */}
-      <motion.div 
-        variants={containerVariants}
-        initial="hidden"
-        animate="visible"
-        style={{ textAlign: 'center', marginBottom: '2.5rem' }}
-      >
+      <div style={{ textAlign: 'center', marginBottom: '2.5rem', position: 'relative', zIndex: 3 }}>
         
         {/* Top Pill Badge */}
-        <motion.div variants={itemVariants} style={{ display: 'inline-block', marginBottom: '1.25rem' }}>
+        <motion.div 
+          initial={{ scale: 0.9, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          transition={{ duration: 0.4 }}
+          style={{ display: 'inline-block', marginBottom: '1.25rem' }}
+        >
           <div style={{
             display: 'inline-flex',
             alignItems: 'center',
@@ -90,13 +118,15 @@ export default function Hero({
             fontWeight: '600'
           }}>
             <Sparkles size={14} />
-            <span>Automated Ingestion Engine • Scrapling Adaptive selectors</span>
+            <span>Automated Ingestion Engine • Scrapling Adaptive Selectors</span>
           </div>
         </motion.div>
 
-        {/* Staggered Heading */}
+        {/* Staggered Headline Reveal */}
         <motion.h1 
-          variants={itemVariants}
+          variants={wordContainerVariants}
+          initial="hidden"
+          animate="visible"
           style={{
             fontSize: 'clamp(2.25rem, 5vw, 3.75rem)',
             fontWeight: '800',
@@ -104,15 +134,27 @@ export default function Hero({
             letterSpacing: '-0.03em',
             color: '#F8FAFC',
             maxWidth: '900px',
-            margin: '0 auto 1.25rem'
+            margin: '0 auto 1.25rem',
+            display: 'flex',
+            flexWrap: 'wrap',
+            justifyContent: 'center',
+            gap: '0.4rem'
           }}
         >
-          Find Verified <span className="gradient-text-blue-violet">Remote Opportunities</span> In Real-Time
+          <motion.span variants={wordItemVariants}>Find</motion.span>
+          <motion.span variants={wordItemVariants}>Verified</motion.span>
+          <motion.span variants={wordItemVariants} className="gradient-text-blue-violet">
+            Remote Opportunities
+          </motion.span>
+          <motion.span variants={wordItemVariants}>In</motion.span>
+          <motion.span variants={wordItemVariants}>Real-Time</motion.span>
         </motion.h1>
 
         {/* Subtitle */}
         <motion.p 
-          variants={itemVariants}
+          initial={{ opacity: 0, y: 15 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.3 }}
           style={{
             color: '#94A3B8',
             fontSize: '1.1rem',
@@ -125,9 +167,11 @@ export default function Hero({
           Indexed directly from verified public remote job platforms using anti-fingerprint fetchers, dynamic throttling, and zero-downtime failovers.
         </motion.p>
 
-        {/* Live Social Proof Stats Strip */}
+        {/* Live Social Proof Count-Up Stats Strip */}
         <motion.div 
-          variants={itemVariants}
+          initial={{ opacity: 0, y: 15 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.4 }}
           style={{
             display: 'inline-flex',
             flexWrap: 'wrap',
@@ -144,27 +188,33 @@ export default function Hero({
           }}
         >
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-            <span style={{ color: '#3B82F6', fontWeight: '800' }}>12,400+</span>
+            <span style={{ color: '#3B82F6', fontWeight: '800' }}>
+              <CountUp end={12400} duration={1200} />+
+            </span>
             <span>Jobs Indexed</span>
           </div>
           <span>•</span>
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
             <Globe2 size={14} color="#8B5CF6" />
-            <span style={{ color: '#F8FAFC', fontWeight: '700' }}>80+ Countries</span>
+            <span style={{ color: '#F8FAFC', fontWeight: '700' }}>
+              <CountUp end={80} duration={1200} />+ Countries
+            </span>
           </div>
           <span>•</span>
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-            <span style={{ color: '#10B981', fontWeight: '700' }}>Updated Every 15 min</span>
+            <span style={{ color: '#10B981', fontWeight: '700' }}>
+              Updated Every <CountUp end={15} duration={1200} /> min
+            </span>
           </div>
         </motion.div>
 
-      </motion.div>
+      </div>
 
-      {/* Animated Search Bar */}
+      {/* Animated Search Bar with Typewriter Placeholder & Focus Glow */}
       <motion.div
         initial={{ scale: 0.96, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
-        transition={{ duration: 0.4, delay: 0.3 }}
+        transition={{ duration: 0.4, delay: 0.5 }}
         style={{
           position: 'relative',
           maxWidth: '780px',
@@ -175,9 +225,10 @@ export default function Hero({
             ? 'linear-gradient(135deg, #3B82F6 0%, #8B5CF6 100%)' 
             : 'rgba(255, 255, 255, 0.1)',
           boxShadow: isSearchFocused 
-            ? '0 0 25px rgba(59, 130, 246, 0.35)' 
+            ? '0 0 30px rgba(59, 130, 246, 0.4)' 
             : '0 10px 30px rgba(0, 0, 0, 0.4)',
-          transition: 'all 0.3s ease'
+          transition: 'all 0.3s ease',
+          zIndex: 3
         }}
       >
         <div 
@@ -215,26 +266,19 @@ export default function Hero({
             />
 
             {!searchQuery && (
-              <AnimatePresence mode="wait">
-                <motion.span
-                  key={placeholderIndex}
-                  initial={{ opacity: 0, y: 6 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -6 }}
-                  transition={{ duration: 0.25 }}
-                  style={{
-                    position: 'absolute',
-                    left: 0,
-                    color: '#64748B',
-                    fontSize: '0.975rem',
-                    pointerEvents: 'none',
-                    userSelect: 'none',
-                    zIndex: 1
-                  }}
-                >
-                  {SEARCH_PLACEHOLDERS[placeholderIndex]}
-                </motion.span>
-              </AnimatePresence>
+              <span
+                style={{
+                  position: 'absolute',
+                  left: 0,
+                  color: '#64748B',
+                  fontSize: '0.975rem',
+                  pointerEvents: 'none',
+                  userSelect: 'none',
+                  zIndex: 1
+                }}
+              >
+                Search '{typedText}<span style={{ opacity: 0.7 }}>|</span>'
+              </span>
             )}
           </div>
 
@@ -273,42 +317,61 @@ export default function Hero({
         </div>
       </motion.div>
 
-      {/* Filter Tag Pills with Elastic Scale Bounce */}
-      <div style={{
-        display: 'flex',
-        flexWrap: 'wrap',
-        justifyContent: 'center',
-        gap: '0.5rem',
-        marginBottom: '2rem'
-      }}>
+      {/* Filter Tag Pills with Shared Layout Highlight (layoutId) */}
+      <motion.div 
+        initial={{ opacity: 0, y: 15 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, delay: 0.6 }}
+        style={{
+          display: 'flex',
+          flexWrap: 'wrap',
+          justifyContent: 'center',
+          gap: '0.5rem',
+          marginBottom: '2rem',
+          position: 'relative',
+          zIndex: 3
+        }}
+      >
         {POPULAR_TAGS.map((tag) => {
           const isActive = selectedTag === tag.val;
           return (
             <motion.button
               key={tag.label}
-              whileHover={{ scale: 1.06 }}
-              whileTap={{ scale: 0.94 }}
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
               onClick={() => setSelectedTag(isActive && tag.val !== '' ? '' : tag.val)}
               style={{
-                background: isActive 
-                  ? 'linear-gradient(135deg, #3B82F6 0%, #8B5CF6 100%)' 
-                  : 'rgba(255, 255, 255, 0.03)',
-                border: `1px solid ${isActive ? 'transparent' : 'rgba(255, 255, 255, 0.08)'}`,
+                position: 'relative',
+                background: 'transparent',
+                border: '1px solid rgba(255, 255, 255, 0.08)',
                 color: isActive ? '#FFFFFF' : '#94A3B8',
                 padding: '0.45rem 1rem',
                 borderRadius: '999px',
                 fontSize: '0.825rem',
                 fontWeight: isActive ? '700' : '500',
                 cursor: 'pointer',
-                boxShadow: isActive ? '0 4px 14px rgba(59, 130, 246, 0.3)' : 'none',
-                transition: 'background 0.2s ease'
+                transition: 'color 0.2s ease'
               }}
             >
-              {tag.label}
+              {isActive && (
+                <motion.div
+                  layoutId="activeFilterPill"
+                  transition={{ type: 'spring', stiffness: 400, damping: 30 }}
+                  style={{
+                    position: 'absolute',
+                    inset: 0,
+                    borderRadius: '999px',
+                    background: 'linear-gradient(135deg, #3B82F6 0%, #8B5CF6 100%)',
+                    boxShadow: '0 4px 14px rgba(59, 130, 246, 0.35)',
+                    zIndex: -1
+                  }}
+                />
+              )}
+              <span style={{ position: 'relative', zIndex: 1 }}>{tag.label}</span>
             </motion.button>
           );
         })}
-      </div>
+      </motion.div>
 
       {/* Toolbar Controls */}
       <div className="glass-card" style={{
@@ -318,7 +381,9 @@ export default function Hero({
         justifyContent: 'space-between',
         flexWrap: 'wrap',
         gap: '1rem',
-        borderRadius: '0.9rem'
+        borderRadius: '0.9rem',
+        position: 'relative',
+        zIndex: 3
       }}>
         {/* Left Count */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
@@ -334,7 +399,7 @@ export default function Hero({
             borderRadius: '999px',
             border: '1px solid rgba(59, 130, 246, 0.3)'
           }}>
-            <CountUp end={totalJobsCount} /> jobs
+            <CountUp end={totalJobsCount} duration={800} /> jobs
           </span>
         </div>
 

@@ -63,6 +63,7 @@ export default function JobCard({
   onShareJob 
 }) {
   const [logoFailed, setLogoFailed] = useState(false);
+  const [bookmarkAnim, setBookmarkAnim] = useState(false);
 
   let tagsList = [];
   if (job.tags) {
@@ -78,6 +79,12 @@ export default function JobCard({
   const region = getRegionBadge(job.location);
   const domain = getCompanyDomain(job.company);
   const logoUrl = domain ? `https://logo.clearbit.com/${domain}` : null;
+
+  const handleBookmarkClick = () => {
+    setBookmarkAnim(true);
+    onToggleSave(job.id);
+    setTimeout(() => setBookmarkAnim(false), 500);
+  };
 
   const renderLogoAvatar = (size = 44) => {
     if (logoUrl && !logoFailed) {
@@ -120,9 +127,10 @@ export default function JobCard({
   if (viewMode === 'list') {
     return (
       <motion.div 
-        initial={{ opacity: 0, y: 15 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.3 }}
+        initial={{ opacity: 0, y: 18 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true }}
+        transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
         className="glass-card"
         style={{
           padding: '1rem 1.35rem',
@@ -137,7 +145,9 @@ export default function JobCard({
           {/* Company Logo / Avatar */}
           <div style={{ position: 'relative', flexShrink: 0 }}>
             {renderLogoAvatar(44)}
-            <CheckCircle2 size={15} color="#10B981" style={{ position: 'absolute', bottom: '-2px', right: '-2px', background: '#0A0E1A', borderRadius: '50%' }} />
+            <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ delay: 0.2, type: 'spring' }}>
+              <CheckCircle2 size={15} color="#10B981" style={{ position: 'absolute', bottom: '-2px', right: '-2px', background: '#0A0E1A', borderRadius: '50%' }} />
+            </motion.div>
           </div>
 
           {/* Details */}
@@ -175,8 +185,10 @@ export default function JobCard({
 
         {/* Actions */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexShrink: 0 }}>
-          <button
-            onClick={() => onToggleSave(job.id)}
+          <motion.button
+            animate={{ scale: bookmarkAnim ? [1, 1.35, 1] : 1 }}
+            transition={{ duration: 0.3 }}
+            onClick={handleBookmarkClick}
             style={{
               background: isSaved ? 'rgba(139, 92, 246, 0.2)' : 'rgba(255, 255, 255, 0.04)',
               border: `1px solid ${isSaved ? '#8B5CF6' : 'rgba(255, 255, 255, 0.08)'}`,
@@ -188,7 +200,7 @@ export default function JobCard({
             title={isSaved ? 'Remove Bookmark' : 'Bookmark Job'}
           >
             <Bookmark size={16} fill={isSaved ? '#8B5CF6' : 'none'} />
-          </button>
+          </motion.button>
 
           <button
             onClick={() => onShareJob(job)}
@@ -235,9 +247,10 @@ export default function JobCard({
   // Grid View Mode
   return (
     <motion.div 
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.4 }}
+      initial={{ opacity: 0, y: 22 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true }}
+      transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
       className="glass-card"
       style={{
         padding: '1.5rem',
@@ -253,7 +266,9 @@ export default function JobCard({
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
             <div style={{ position: 'relative' }}>
               {renderLogoAvatar(48)}
-              <CheckCircle2 size={16} color="#10B981" style={{ position: 'absolute', bottom: '-2px', right: '-2px', background: '#0A0E1A', borderRadius: '50%' }} />
+              <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ delay: 0.2, type: 'spring' }}>
+                <CheckCircle2 size={16} color="#10B981" style={{ position: 'absolute', bottom: '-2px', right: '-2px', background: '#0A0E1A', borderRadius: '50%' }} />
+              </motion.div>
             </div>
 
             <div>
@@ -269,8 +284,10 @@ export default function JobCard({
           </div>
 
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
-            <button
-              onClick={() => onToggleSave(job.id)}
+            <motion.button
+              animate={{ scale: bookmarkAnim ? [1, 1.35, 1] : 1 }}
+              transition={{ duration: 0.3 }}
+              onClick={handleBookmarkClick}
               style={{
                 background: isSaved ? 'rgba(139, 92, 246, 0.2)' : 'rgba(255, 255, 255, 0.04)',
                 border: `1px solid ${isSaved ? '#8B5CF6' : 'rgba(255, 255, 255, 0.08)'}`,
@@ -282,7 +299,7 @@ export default function JobCard({
               title={isSaved ? 'Remove Bookmark' : 'Bookmark Job'}
             >
               <Bookmark size={15} fill={isSaved ? '#8B5CF6' : 'none'} />
-            </button>
+            </motion.button>
 
             <button
               onClick={() => onShareJob(job)}
@@ -317,14 +334,15 @@ export default function JobCard({
           {job.title}
         </h3>
 
-        {/* Tag Badges with Dynamic Color Coding */}
+        {/* Tag Badges with Dynamic Color Coding & Scale Hover */}
         {tagsList.length > 0 && (
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.45rem', marginBottom: '1.35rem' }}>
             {tagsList.slice(0, 5).map((t, idx) => {
               const tagStyle = getTagStyle(t);
               return (
-                <span
+                <motion.span
                   key={idx}
+                  whileHover={{ scale: 1.06 }}
                   onClick={(e) => { e.stopPropagation(); onSelectTag(t); }}
                   style={{
                     background: tagStyle.bg,
@@ -338,7 +356,7 @@ export default function JobCard({
                   }}
                 >
                   {t}
-                </span>
+                </motion.span>
               );
             })}
           </div>

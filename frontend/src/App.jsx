@@ -70,6 +70,29 @@ export default function App() {
     fetchData();
   }, []);
 
+  // Page Visibility API listener: pause animations when tab is hidden
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      document.body.classList.toggle('tab-hidden', document.visibilityState === 'hidden');
+    };
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
+  }, []);
+
+  // Mouse Parallax tilt for background grid mesh
+  useEffect(() => {
+    const handleMouseMove = (e) => {
+      const grid = document.querySelector('.grid-texture');
+      if (grid) {
+        const moveX = (e.clientX / window.innerWidth - 0.5) * 12;
+        const moveY = (e.clientY / window.innerHeight - 0.5) * 12;
+        grid.style.transform = `translate(${moveX}px, ${moveY}px)`;
+      }
+    };
+    window.addEventListener('mousemove', handleMouseMove);
+    return () => window.removeEventListener('mousemove', handleMouseMove);
+  }, []);
+
   // '/' Keyboard shortcut listener
   useEffect(() => {
     const handleKeyDown = (e) => {
@@ -175,6 +198,7 @@ export default function App() {
         <div className="aurora-orb-1" />
         <div className="aurora-orb-2" />
         <div className="aurora-orb-3" />
+        <div className="aurora-orb-4" />
       </div>
       <div className="grid-texture" />
 
@@ -251,7 +275,7 @@ export default function App() {
               ))}
             </div>
           ) : filteredJobs.length === 0 ? (
-            /* Empty State */
+            /* Empty State with Floating Motion */
             <motion.div 
               initial={{ opacity: 0, scale: 0.96 }}
               animate={{ opacity: 1, scale: 1 }}
@@ -264,20 +288,24 @@ export default function App() {
                 margin: '2rem auto'
               }}
             >
-              <div style={{
-                width: '68px',
-                height: '68px',
-                borderRadius: '50%',
-                background: 'rgba(59, 130, 246, 0.1)',
-                border: '1px solid rgba(59, 130, 246, 0.25)',
-                color: '#3B82F6',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                margin: '0 auto 1.25rem'
-              }}>
+              <motion.div 
+                animate={{ y: [0, -6, 0] }}
+                transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}
+                style={{
+                  width: '68px',
+                  height: '68px',
+                  borderRadius: '50%',
+                  background: 'rgba(59, 130, 246, 0.1)',
+                  border: '1px solid rgba(59, 130, 246, 0.25)',
+                  color: '#3B82F6',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  margin: '0 auto 1.25rem'
+                }}
+              >
                 <Inbox size={34} />
-              </div>
+              </motion.div>
               <h3 style={{ fontSize: '1.4rem', fontWeight: '800', color: '#F8FAFC', marginBottom: '0.5rem' }}>
                 {showSavedOnly ? 'No Saved Jobs Yet' : 'No Matching Opportunities Found'}
               </h3>

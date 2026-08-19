@@ -41,7 +41,7 @@ h1, h2, h3, h4, h5, h6 {
   letter-spacing: -0.02em;
 }
 
-/* Ambient Radial Canvas */
+/* Ambient Radial Canvas with Floating Orbs */
 .ambient-canvas {
   position: fixed;
   inset: 0;
@@ -51,76 +51,141 @@ h1, h2, h3, h4, h5, h6 {
   background: #0A0E1A;
 }
 
-/* Floating Organic Aurora Light Orbs */
+/* Floating Gradient Orbs (Stripe/Linear/Vercel Ambient Layer) */
 .aurora-orb-1 {
   position: absolute;
-  top: -10%;
-  left: 15%;
-  width: 600px;
-  height: 600px;
+  top: -15%;
+  left: 10%;
+  width: 650px;
+  height: 650px;
   border-radius: 50%;
   background: radial-gradient(circle, rgba(59, 130, 246, 0.22) 0%, rgba(59, 130, 246, 0) 70%);
-  filter: blur(80px);
-  animation: floatOrb1 16s ease-in-out infinite alternate;
+  filter: blur(90px);
+  animation: floatOrb1 24s ease-in-out infinite alternate;
   pointer-events: none;
 }
 
 .aurora-orb-2 {
   position: absolute;
-  top: 45%;
-  right: 10%;
-  width: 550px;
-  height: 550px;
+  top: 40%;
+  right: 5%;
+  width: 580px;
+  height: 580px;
   border-radius: 50%;
   background: radial-gradient(circle, rgba(139, 92, 246, 0.18) 0%, rgba(139, 92, 246, 0) 70%);
-  filter: blur(90px);
-  animation: floatOrb2 20s ease-in-out infinite alternate;
+  filter: blur(100px);
+  animation: floatOrb2 28s ease-in-out infinite alternate;
   pointer-events: none;
 }
 
 .aurora-orb-3 {
   position: absolute;
   bottom: 5%;
-  left: 25%;
-  width: 450px;
-  height: 450px;
+  left: 20%;
+  width: 480px;
+  height: 480px;
   border-radius: 50%;
-  background: radial-gradient(circle, rgba(16, 185, 129, 0.12) 0%, rgba(16, 185, 129, 0) 70%);
-  filter: blur(70px);
-  animation: floatOrb3 22s ease-in-out infinite alternate;
+  background: radial-gradient(circle, rgba(16, 185, 129, 0.14) 0%, rgba(16, 185, 129, 0) 70%);
+  filter: blur(80px);
+  animation: floatOrb3 26s ease-in-out infinite alternate;
+  pointer-events: none;
+}
+
+.aurora-orb-4 {
+  position: absolute;
+  top: 20%;
+  right: 35%;
+  width: 420px;
+  height: 420px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(245, 158, 11, 0.1) 0%, rgba(245, 158, 11, 0) 70%);
+  filter: blur(85px);
+  animation: floatOrb4 22s ease-in-out infinite alternate;
   pointer-events: none;
 }
 
 @keyframes floatOrb1 {
   0% { transform: translate(0, 0) scale(1); }
-  50% { transform: translate(80px, 60px) scale(1.15); }
-  100% { transform: translate(-40px, 100px) scale(0.95); }
+  50% { transform: translate(90px, 70px) scale(1.15); }
+  100% { transform: translate(-50px, 110px) scale(0.95); }
 }
 
 @keyframes floatOrb2 {
   0% { transform: translate(0, 0) scale(1); }
-  50% { transform: translate(-90px, -50px) scale(1.2); }
-  100% { transform: translate(50px, 70px) scale(1); }
+  50% { transform: translate(-100px, -60px) scale(1.2); }
+  100% { transform: translate(60px, 80px) scale(1); }
 }
 
 @keyframes floatOrb3 {
   0% { transform: translate(0, 0) scale(1); }
-  50% { transform: translate(70px, -80px) scale(1.1); }
-  100% { transform: translate(-60px, -30px) scale(0.9); }
+  50% { transform: translate(80px, -90px) scale(1.1); }
+  100% { transform: translate(-70px, -40px) scale(0.9); }
 }
 
-/* Subtle Grid Overlay Background Texture */
+@keyframes floatOrb4 {
+  0% { transform: translate(0, 0) scale(1); }
+  50% { transform: translate(-60px, 80px) scale(1.1); }
+  100% { transform: translate(70px, -50px) scale(0.95); }
+}
+
+/* Subtle Grid Dot Texture */
 .grid-texture {
   position: fixed;
   inset: 0;
-  background-image: linear-gradient(to right, rgba(255, 255, 255, 0.02) 1px, transparent 1px),
-                    linear-gradient(to bottom, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
-  background-size: 40px 40px;
+  background-image: radial-gradient(rgba(255, 255, 255, 0.07) 1px, transparent 1px);
+  background-size: 28px 28px;
   pointer-events: none;
   z-index: 1;
+  transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-/* Glassmorphism Card System with Glowing Inset Border */
+/* Hero Diagonal Scanline Sweep Light Beam */
+.scanline-sweep {
+  position: absolute;
+  top: -100%;
+  left: -100%;
+  width: 300%;
+  height: 300%;
+  background: linear-gradient(
+    135deg,
+    transparent 45%,
+    rgba(59, 130, 246, 0.08) 50%,
+    rgba(139, 92, 246, 0.05) 52%,
+    transparent 57%
+  );
+  animation: scanlineSweep 9s ease-in-out infinite;
+  pointer-events: none;
+  z-index: 2;
+}
+
+@keyframes scanlineSweep {
+  0% { transform: translate(-30%, -30%); opacity: 0; }
+  15% { opacity: 1; }
+  35% { opacity: 0.8; }
+  50% { transform: translate(30%, 30%); opacity: 0; }
+  100% { transform: translate(30%, 30%); opacity: 0; }
+}
+
+/* Hero Upward Floating Data Packets Particles */
+.hero-particle {
+  position: absolute;
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: rgba(59, 130, 246, 0.6);
+  box-shadow: 0 0 8px rgba(59, 130, 246, 0.8);
+  animation: particleRise 7s ease-in-out infinite;
+  pointer-events: none;
+}
+
+@keyframes particleRise {
+  0% { transform: translateY(0) scale(0.5); opacity: 0; }
+  20% { opacity: 0.8; }
+  80% { opacity: 0.4; }
+  100% { transform: translateY(-160px) scale(1.2); opacity: 0; }
+}
+
+/* Glassmorphism Card System */
 .glass-card {
   background: var(--bg-card);
   backdrop-filter: blur(24px);
@@ -135,9 +200,9 @@ h1, h2, h3, h4, h5, h6 {
 
 .glass-card:hover {
   background: var(--bg-card-hover);
-  border-color: rgba(59, 130, 246, 0.4);
-  box-shadow: 0 20px 40px -15px rgba(59, 130, 246, 0.25), inset 0 1px 0 0 rgba(255, 255, 255, 0.15);
-  transform: translateY(-4px);
+  border-color: rgba(59, 130, 246, 0.45);
+  box-shadow: 0 20px 45px -15px rgba(59, 130, 246, 0.25), inset 0 1px 0 0 rgba(255, 255, 255, 0.15);
+  transform: translateY(-6px);
 }
 
 /* Shimmer Sweep Animation on Buttons & Hover */
@@ -188,13 +253,13 @@ h1, h2, h3, h4, h5, h6 {
   100% { transform: scale(1); opacity: 0; }
 }
 
-/* Dynamic Gradient Text */
+/* Dynamic Gradient Text with 4s Hue-Shift Loop */
 .gradient-text-blue-violet {
   background: linear-gradient(135deg, #3B82F6 0%, #8B5CF6 50%, #EC4899 100%);
   background-size: 200% auto;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
-  animation: gradientShift 8s ease infinite;
+  animation: gradientShift 4s ease infinite;
 }
 
 @keyframes gradientShift {
@@ -219,6 +284,29 @@ h1, h2, h3, h4, h5, h6 {
 @keyframes skeletonShimmer {
   0% { background-position: 200% 0; }
   100% { background-position: -200% 0; }
+}
+
+/* Tab Hidden / Page Visibility API pause */
+body.tab-hidden .aurora-orb-1,
+body.tab-hidden .aurora-orb-2,
+body.tab-hidden .aurora-orb-3,
+body.tab-hidden .aurora-orb-4,
+body.tab-hidden .scanline-sweep,
+body.tab-hidden .hero-particle,
+body.tab-hidden .gradient-text-blue-violet {
+  animation-play-state: paused !important;
+}
+
+/* Accessibility: prefers-reduced-motion fallbacks */
+@media (prefers-reduced-motion: reduce) {
+  .aurora-orb-1, .aurora-orb-2, .aurora-orb-3, .aurora-orb-4,
+  .scanline-sweep, .hero-particle, .gradient-text-blue-violet,
+  .pulse-emerald-ring::before {
+    animation: none !important;
+  }
+  .glass-card:hover {
+    transform: none !important;
+  }
 }
 
 /* Custom Scrollbars */

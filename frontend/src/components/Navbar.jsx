@@ -22,7 +22,7 @@ export default function Navbar({
 
   useEffect(() => {
     const handleScroll = () => {
-      setIsScrolled(window.scrollY > 30);
+      setIsScrolled(window.scrollY > 25);
     };
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
@@ -31,23 +31,28 @@ export default function Navbar({
   const handleSyncClick = () => {
     onRefresh();
     setSyncedSuccess(false);
+    setTimeout(() => {
+      setSyncedSuccess(true);
+      setTimeout(() => setSyncedSuccess(false), 3000);
+    }, 1200);
   };
 
   return (
     <motion.header 
       initial={{ y: -50, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
-      transition={{ duration: 0.5, ease: 'easeOut' }}
+      transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
       style={{
         position: 'sticky',
         top: 0,
         zIndex: 50,
-        background: isScrolled ? 'rgba(10, 14, 26, 0.92)' : 'rgba(10, 14, 26, 0.75)',
-        backdropFilter: 'blur(20px)',
-        WebkitBackdropFilter: 'blur(20px)',
-        borderBottom: `1px solid ${isScrolled ? 'rgba(59, 130, 246, 0.25)' : 'rgba(255, 255, 255, 0.08)'}`,
-        padding: isScrolled ? '0.75rem 1.5rem' : '1.1rem 1.5rem',
-        transition: 'all 0.3s cubic-bezier(0.16, 1, 0.3, 1)'
+        background: isScrolled ? 'rgba(10, 14, 26, 0.94)' : 'rgba(10, 14, 26, 0.75)',
+        backdropFilter: isScrolled ? 'blur(24px)' : 'blur(16px)',
+        WebkitBackdropFilter: isScrolled ? 'blur(24px)' : 'blur(16px)',
+        borderBottom: `1px solid ${isScrolled ? 'rgba(59, 130, 246, 0.3)' : 'rgba(255, 255, 255, 0.08)'}`,
+        padding: isScrolled ? '0.6rem 1.5rem' : '1.1rem 1.5rem',
+        boxShadow: isScrolled ? '0 10px 30px rgba(0,0,0,0.5)' : 'none',
+        transition: 'all 0.25s ease-out'
       }}
     >
       <div style={{
@@ -67,8 +72,8 @@ export default function Navbar({
         >
           <div style={{
             position: 'relative',
-            width: '42px',
-            height: '42px',
+            width: isScrolled ? '36px' : '42px',
+            height: isScrolled ? '36px' : '42px',
             borderRadius: '12px',
             background: 'linear-gradient(135deg, rgba(59, 130, 246, 0.25), rgba(139, 92, 246, 0.25))',
             border: '1px solid rgba(59, 130, 246, 0.4)',
@@ -76,15 +81,16 @@ export default function Navbar({
             alignItems: 'center',
             justifyContent: 'center',
             color: '#3B82F6',
-            boxShadow: '0 0 15px rgba(59, 130, 246, 0.2)'
+            boxShadow: '0 0 15px rgba(59, 130, 246, 0.2)',
+            transition: 'all 0.25s ease-out'
           }}>
-            <Radar size={24} style={{ animation: 'spin 14s linear infinite' }} />
+            <Radar size={isScrolled ? 20 : 24} style={{ animation: 'spin 14s linear infinite' }} />
             <div className="pulse-emerald-ring" style={{
               position: 'absolute',
               top: '2px',
               right: '2px',
-              width: '8px',
-              height: '8px',
+              width: '7px',
+              height: '7px',
               borderRadius: '50%',
               background: '#10B981',
               zIndex: 2
@@ -95,12 +101,13 @@ export default function Navbar({
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.45rem' }}>
               <span style={{
                 fontFamily: "'Inter Tight', sans-serif",
-                fontSize: '1.35rem',
+                fontSize: isScrolled ? '1.15rem' : '1.35rem',
                 fontWeight: '800',
                 letterSpacing: '-0.03em',
                 background: 'linear-gradient(135deg, #F8FAFC 0%, #CBD5E1 100%)',
                 WebkitBackgroundClip: 'text',
-                WebkitTextFillColor: 'transparent'
+                WebkitTextFillColor: 'transparent',
+                transition: 'all 0.25s ease-out'
               }}>
                 Job Scraper
               </span>
@@ -117,9 +124,11 @@ export default function Navbar({
                 PRO v2.0
               </span>
             </div>
-            <p style={{ fontSize: '0.75rem', color: '#64748B', fontWeight: '500' }}>
-              Resilient Scraping Ingestion Engine
-            </p>
+            {!isScrolled && (
+              <p style={{ fontSize: '0.75rem', color: '#64748B', fontWeight: '500' }}>
+                Resilient Scraping Ingestion Engine
+              </p>
+            )}
           </div>
         </div>
 
@@ -224,7 +233,7 @@ export default function Navbar({
             )}
           </motion.button>
 
-          {/* Sync Pipeline Button with Spin */}
+          {/* Sync Pipeline Button with Morphing Spin / Check */}
           <motion.button
             whileHover={{ scale: 1.03 }}
             whileTap={{ scale: 0.97 }}
@@ -235,7 +244,9 @@ export default function Navbar({
               display: 'flex',
               alignItems: 'center',
               gap: '0.45rem',
-              background: 'linear-gradient(135deg, #3B82F6 0%, #8B5CF6 100%)',
+              background: syncedSuccess 
+                ? 'rgba(16, 185, 129, 0.9)'
+                : 'linear-gradient(135deg, #3B82F6 0%, #8B5CF6 100%)',
               color: '#FFFFFF',
               border: 'none',
               padding: '0.5rem 1.1rem',
@@ -243,8 +254,9 @@ export default function Navbar({
               fontSize: '0.85rem',
               fontWeight: '700',
               cursor: isRefreshing ? 'not-allowed' : 'pointer',
-              boxShadow: '0 4px 16px rgba(59, 130, 246, 0.35)',
-              opacity: isRefreshing ? 0.8 : 1
+              boxShadow: syncedSuccess ? '0 4px 16px rgba(16, 185, 129, 0.4)' : '0 4px 16px rgba(59, 130, 246, 0.35)',
+              opacity: isRefreshing ? 0.85 : 1,
+              transition: 'background 0.3s ease, box-shadow 0.3s ease'
             }}
           >
             {syncedSuccess ? (
@@ -252,7 +264,7 @@ export default function Navbar({
             ) : (
               <RefreshCw size={15} style={{ animation: isRefreshing ? 'spin 1s linear infinite' : 'none' }} />
             )}
-            <span>{isRefreshing ? 'Syncing...' : 'Sync Pipeline'}</span>
+            <span>{isRefreshing ? 'Syncing...' : syncedSuccess ? 'Pipeline Synced!' : 'Sync Pipeline'}</span>
           </motion.button>
 
         </div>
