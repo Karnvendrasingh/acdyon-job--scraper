@@ -170,9 +170,11 @@ export default function App() {
   return (
     <div style={{ position: 'relative', minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
       
-      {/* Radial Gradient Canvas with Rotating Radar Sweep */}
+      {/* Floating Aurora Light Orbs Ambient Canvas */}
       <div className="ambient-canvas">
-        <div className="radar-sweep-beam" />
+        <div className="aurora-orb-1" />
+        <div className="aurora-orb-2" />
+        <div className="aurora-orb-3" />
       </div>
       <div className="grid-texture" />
 
@@ -310,7 +312,7 @@ export default function App() {
               )}
             </motion.div>
           ) : (
-            /* Animated Layout Cards Container */
+            /* Animated Cards Container */
             <motion.div 
               layout
               style={{
