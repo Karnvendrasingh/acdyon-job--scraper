@@ -4,47 +4,290 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Scrapling Job Radar</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background-color: #f9fafb; color: #111827; margin: 0; padding: 2rem; }
-        .container { max-width: 800px; margin: 0 auto; }
-        .header { display: flex; justify-content: space-between; align-items: baseline; border-bottom: 1px solid #e5e7eb; padding-bottom: 1rem; margin-bottom: 2rem; }
-        .job-card { background: white; padding: 1.5rem; border-radius: 0.5rem; box-shadow: 0 1px 3px rgba(0,0,0,0.1); margin-bottom: 1rem; }
-        .job-title { font-size: 1.25rem; font-weight: 600; color: #1d4ed8; text-decoration: none; }
-        .job-title:hover { text-decoration: underline; }
-        .job-meta { color: #6b7280; font-size: 0.875rem; margin-top: 0.5rem; display: flex; gap: 1rem; }
-        .stale-banner { background: #fef2f2; color: #991b1b; padding: 1rem; border-radius: 0.5rem; margin-bottom: 2rem; display: none; }
-        .tag { background: #e5e7eb; padding: 0.2rem 0.5rem; border-radius: 9999px; font-size: 0.75rem; }
+        :root {
+            --bg-base: #0f172a;
+            --bg-glass: rgba(30, 41, 59, 0.7);
+            --border-glass: rgba(255, 255, 255, 0.1);
+            --text-primary: #f8fafc;
+            --text-secondary: #94a3b8;
+            --accent-glow: rgba(56, 189, 248, 0.5);
+            --accent-solid: #38bdf8;
+            --danger-bg: rgba(220, 38, 38, 0.2);
+            --danger-text: #fca5a5;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #020617 0%, #0f172a 100%);
+            color: var(--text-primary);
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        /* Subtle animated background shapes */
+        body::before, body::after {
+            content: '';
+            position: fixed;
+            border-radius: 50%;
+            filter: blur(100px);
+            z-index: -1;
+            animation: float 20s infinite ease-in-out alternate;
+        }
+        body::before {
+            width: 400px; height: 400px;
+            background: rgba(56, 189, 248, 0.15);
+            top: -100px; left: -100px;
+        }
+        body::after {
+            width: 300px; height: 300px;
+            background: rgba(139, 92, 246, 0.15);
+            bottom: -50px; right: -50px;
+            animation-delay: -10s;
+        }
+
+        @keyframes float {
+            0% { transform: translate(0, 0); }
+            100% { transform: translate(50px, 50px); }
+        }
+
+        .container {
+            width: 100%;
+            max-width: 900px;
+            padding: 2rem;
+            box-sizing: border-box;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1.5rem 2rem;
+            background: var(--bg-glass);
+            backdrop-filter: blur(12px);
+            border: 1px solid var(--border-glass);
+            border-radius: 1rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        .header h1 {
+            margin: 0;
+            font-size: 1.75rem;
+            font-weight: 700;
+            background: linear-gradient(to right, #38bdf8, #818cf8);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: -0.5px;
+        }
+
+        #status {
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: var(--text-secondary);
+            background: rgba(255, 255, 255, 0.05);
+            padding: 0.5rem 1rem;
+            border-radius: 999px;
+            border: 1px solid var(--border-glass);
+        }
+
+        .stale-banner {
+            background: var(--danger-bg);
+            color: var(--danger-text);
+            padding: 1rem 1.5rem;
+            border-radius: 0.75rem;
+            margin-bottom: 2rem;
+            border: 1px solid rgba(220, 38, 38, 0.3);
+            display: none;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .job-card {
+            background: var(--bg-glass);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--border-glass);
+            border-radius: 1rem;
+            padding: 1.75rem;
+            margin-bottom: 1.25rem;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .job-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; width: 4px; height: 100%;
+            background: var(--accent-solid);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .job-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3), 0 0 20px var(--accent-glow);
+            border-color: rgba(56, 189, 248, 0.3);
+        }
+
+        .job-card:hover::before {
+            opacity: 1;
+        }
+
+        .job-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 1rem;
+        }
+
+        .job-title {
+            font-size: 1.35rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            text-decoration: none;
+            transition: color 0.2s ease;
+            line-height: 1.3;
+        }
+
+        .job-title:hover {
+            color: var(--accent-solid);
+        }
+
+        .job-meta {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1.5rem;
+            margin-bottom: 1.25rem;
+        }
+
+        .meta-item {
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+        
+        .meta-item svg {
+            width: 16px;
+            height: 16px;
+            opacity: 0.7;
+        }
+
+        .tags-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+
+        .tag {
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: #e2e8f0;
+            padding: 0.25rem 0.75rem;
+            border-radius: 999px;
+            font-size: 0.75rem;
+            font-weight: 500;
+            transition: background 0.2s;
+        }
+
+        .job-card:hover .tag {
+            background: rgba(56, 189, 248, 0.1);
+            border-color: rgba(56, 189, 248, 0.2);
+            color: var(--accent-solid);
+        }
+
+        .job-footer {
+            margin-top: 1.5rem;
+            padding-top: 1rem;
+            border-top: 1px solid var(--border-glass);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+        }
+
+        .apply-btn {
+            background: var(--accent-solid);
+            color: #0f172a;
+            padding: 0.5rem 1.25rem;
+            border-radius: 0.5rem;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.875rem;
+            transition: all 0.2s ease;
+        }
+
+        .apply-btn:hover {
+            background: #7dd3fc;
+            box-shadow: 0 0 15px var(--accent-glow);
+        }
+        
+        /* Loading skeleton */
+        .skeleton {
+            background: rgba(255,255,255,0.05);
+            border-radius: 1rem;
+            height: 200px;
+            margin-bottom: 1.25rem;
+            animation: pulse 1.5s infinite ease-in-out;
+        }
+        
+        @keyframes pulse {
+            0% { opacity: 0.5; }
+            50% { opacity: 0.8; }
+            100% { opacity: 0.5; }
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="header">
             <h1>Job Radar</h1>
-            <div id="status">Loading...</div>
+            <div id="status">Connecting...</div>
         </div>
         
-        <div id="stale-banner" class="stale-banner">
-            ⚠️ Data might be stale. Ingestion pipeline is currently degraded.
+        <div id="stale-banner" class="stale-banner" style="display: none;">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg>
+            Data might be stale. The ingestion pipeline is currently degraded.
         </div>
         
-        <div id="jobs-container"></div>
+        <div id="jobs-container">
+            <div class="skeleton"></div>
+            <div class="skeleton"></div>
+            <div class="skeleton"></div>
+        </div>
     </div>
 
     <script>
+        // Simple SVG icons
+        const iconCompany = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="2" width="16" height="20" rx="2" ry="2"></rect><path d="M9 22v-4h6v4"></path><path d="M8 6h.01"></path><path d="M16 6h.01"></path><path d="M12 6h.01"></path><path d="M12 10h.01"></path><path d="M12 14h.01"></path><path d="M16 10h.01"></path><path d="M16 14h.01"></path><path d="M8 10h.01"></path><path d="M8 14h.01"></path></svg>`;
+        const iconLocation = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"></path><circle cx="12" cy="10" r="3"></circle></svg>`;
+
         async function fetchJobs() {
             try {
                 const response = await fetch('/jobs');
                 const data = await response.json();
                 
                 if (data.stale) {
-                    document.getElementById('stale-banner').style.display = 'block';
+                    document.getElementById('stale-banner').style.display = 'flex';
                 }
                 
                 const container = document.getElementById('jobs-container');
                 container.innerHTML = '';
                 
                 if (data.data.length === 0) {
-                    container.innerHTML = '<p>No jobs found.</p>';
+                    container.innerHTML = '<div class="job-card" style="text-align:center; color: var(--text-secondary);">No jobs found right now. Check back later!</div>';
                 }
                 
                 data.data.forEach(job => {
@@ -56,32 +299,39 @@
                         try {
                             const tags = JSON.parse(job.tags);
                             if (Array.isArray(tags)) {
-                                tagsHtml = tags.slice(0,5).map(t => `<span class="tag">${t}</span>`).join(' ');
+                                tagsHtml = tags.slice(0, 6).map(t => `<span class="tag">${t}</span>`).join('');
                             }
                         } catch(e) {}
                     }
                     
+                    const timeAgo = Math.round((new Date() - new Date(job.created_at)) / 60000);
+                    const timeStr = timeAgo < 60 ? `${timeAgo}m ago` : `${Math.round(timeAgo/60)}h ago`;
+                    
                     card.innerHTML = `
-                        <div>
+                        <div class="job-header">
                             <a href="${job.apply_url}" target="_blank" class="job-title">${job.title}</a>
                         </div>
                         <div class="job-meta">
-                            <span>🏢 ${job.company}</span>
-                            <span>📍 ${job.location || 'Remote'}</span>
+                            <div class="meta-item">${iconCompany} <span>${job.company}</span></div>
+                            <div class="meta-item">${iconLocation} <span>${job.location || 'Remote'}</span></div>
                         </div>
-                        <div style="margin-top: 0.5rem">${tagsHtml}</div>
-                        <div style="margin-top: 1rem; font-size: 0.75rem; color: #9ca3af;">
-                            Added: ${new Date(job.created_at).toLocaleString()} | Source: Jobs via ${job.source}
+                        <div class="tags-container">${tagsHtml}</div>
+                        <div class="job-footer">
+                            <div>
+                                Added ${timeStr} • via <strong>${job.source}</strong>
+                            </div>
+                            <a href="${job.apply_url}" target="_blank" class="apply-btn">Apply Now</a>
                         </div>
                     `;
                     container.appendChild(card);
                 });
                 
-                document.getElementById('status').innerText = `Loaded ${data.data.length} jobs`;
+                document.getElementById('status').innerText = `${data.data.length} Jobs Live`;
                 
             } catch (error) {
                 console.error("Error fetching jobs:", error);
-                document.getElementById('status').innerText = "Error loading jobs";
+                document.getElementById('status').innerText = "Offline";
+                document.getElementById('jobs-container').innerHTML = '<div class="job-card" style="text-align:center; color: #fca5a5;">Failed to connect to the pipeline.</div>';
             }
         }
         

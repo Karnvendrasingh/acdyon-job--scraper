@@ -1,6 +1,6 @@
 services:
   - type: web
-    name: job-radar
+    name: acdyon-job-scraper
     env: docker
     plan: free
     healthCheckPath: /health
@@ -11,6 +11,8 @@ services:
         value: "sqlite:///./jobs.db"
       - key: RATE_LIMIT_BASE_DELAY_SECONDS
         value: "3"
+      - key: STALE_AFTER_MINUTES
+        value: "120"
       - key: FAILURE_THRESHOLD
         value: "3"
       - key: REMOTEOK_URL

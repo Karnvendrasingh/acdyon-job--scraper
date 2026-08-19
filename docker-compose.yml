@@ -1,0 +1,24 @@
+version: '3.8'
+
+services:
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: acdyon-job-scraper
+    ports:
+      - "8005:8000"
+    environment:
+      - INGEST_INTERVAL_MINUTES=30
+      - DB_URL=sqlite:///./jobs.db
+      - RATE_LIMIT_BASE_DELAY_SECONDS=3
+      - STALE_AFTER_MINUTES=120
+      - FAILURE_THRESHOLD=3
+      - REMOTEOK_URL=https://remoteok.com/api
+      - ARBEITNOW_URL=https://www.arbeitnow.com/api/job-board-api
+    volumes:
+      - sqlite_data:/app/data
+    restart: unless-stopped
+
+volumes:
+  sqlite_data:
