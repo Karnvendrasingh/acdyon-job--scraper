@@ -1,5 +1,6 @@
 import React from 'react';
-import { X, Building2, MapPin, ExternalLink, Bookmark, Share2, Calendar, ShieldCheck, Hash } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { X, Building2, MapPin, ExternalLink, Bookmark, Share2, Calendar, ShieldCheck, Hash, Globe } from 'lucide-react';
 
 export default function JobModal({ job, onClose, isSaved, onToggleSave, onShareJob }) {
   if (!job) return null;
@@ -14,195 +15,212 @@ export default function JobModal({ job, onClose, isSaved, onToggleSave, onShareJ
   }
 
   return (
-    <div className="modal-backdrop" onClick={onClose}>
-      <div className="modal-content" onClick={(e) => e.stopPropagation()} style={{ padding: '2rem' }}>
-        
-        {/* Header bar */}
-        <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: '1.5rem' }}>
-          <div>
-            <div style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: '0.4rem',
-              background: 'rgba(56, 189, 248, 0.15)',
-              color: '#38bdf8',
-              padding: '0.2rem 0.6rem',
-              borderRadius: '0.4rem',
-              fontSize: '0.75rem',
-              fontWeight: '700',
-              textTransform: 'uppercase',
-              marginBottom: '0.5rem'
-            }}>
-              <ShieldCheck size={14} />
-              <span>Verified Ingestion via {job.source}</span>
+    <AnimatePresence>
+      <div className="modal-overlay" onClick={onClose}>
+        <motion.div 
+          initial={{ opacity: 0, scale: 0.95, y: 20 }}
+          animate={{ opacity: 1, scale: 1, y: 0 }}
+          exit={{ opacity: 0, scale: 0.95, y: 20 }}
+          transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
+          className="glass-card"
+          onClick={(e) => e.stopPropagation()}
+          style={{
+            maxWidth: '680px',
+            width: '100%',
+            maxHeight: '85vh',
+            overflowY: 'auto',
+            padding: '2rem',
+            background: '#0A0E1A',
+            border: '1px solid rgba(255, 255, 255, 0.12)'
+          }}
+        >
+          {/* Header */}
+          <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: '1.5rem' }}>
+            <div>
+              <div style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '0.4rem',
+                background: 'rgba(59, 130, 246, 0.12)',
+                color: '#3B82F6',
+                padding: '0.25rem 0.65rem',
+                borderRadius: '0.45rem',
+                fontSize: '0.75rem',
+                fontWeight: '700',
+                textTransform: 'uppercase',
+                marginBottom: '0.6rem'
+              }}>
+                <ShieldCheck size={14} />
+                <span>Verified Ingestion via {job.source}</span>
+              </div>
+              <h2 style={{ fontSize: '1.65rem', fontWeight: '800', color: '#F8FAFC', lineHeight: 1.25 }}>
+                {job.title}
+              </h2>
             </div>
-            <h2 style={{ fontSize: '1.5rem', fontWeight: '800', color: '#f8fafc', lineHeight: 1.25 }}>
-              {job.title}
-            </h2>
-          </div>
 
-          <button
-            onClick={onClose}
-            style={{
-              background: 'rgba(255, 255, 255, 0.08)',
-              border: 'none',
-              color: '#94a3b8',
-              width: '32px',
-              height: '32px',
-              borderRadius: '50%',
-              cursor: 'pointer',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center'
-            }}
-          >
-            <X size={18} />
-          </button>
-        </div>
-
-        {/* Company & Location Info */}
-        <div style={{
-          display: 'flex',
-          flexWrap: 'wrap',
-          gap: '1.5rem',
-          padding: '1rem',
-          background: 'rgba(255, 255, 255, 0.03)',
-          border: '1px solid rgba(255, 255, 255, 0.08)',
-          borderRadius: '0.75rem',
-          marginBottom: '1.5rem',
-          fontSize: '0.9rem',
-          color: '#cbd5e1'
-        }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-            <Building2 size={16} color="#38bdf8" />
-            <span>Company: <strong>{job.company}</strong></span>
-          </div>
-
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-            <MapPin size={16} color="#38bdf8" />
-            <span>Location: <strong>{job.location || 'Remote Global'}</strong></span>
-          </div>
-
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-            <Calendar size={16} color="#94a3b8" />
-            <span>Indexed: <strong>{new Date(job.created_at).toLocaleString()}</strong></span>
-          </div>
-        </div>
-
-        {/* Tags */}
-        {tagsList.length > 0 && (
-          <div style={{ marginBottom: '1.5rem' }}>
-            <h4 style={{ fontSize: '0.85rem', textTransform: 'uppercase', color: '#64748b', fontWeight: '700', marginBottom: '0.6rem' }}>
-              Required Skills & Taxonomy
-            </h4>
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
-              {tagsList.map((tag, i) => (
-                <span
-                  key={i}
-                  style={{
-                    background: 'rgba(56, 189, 248, 0.12)',
-                    border: '1px solid rgba(56, 189, 248, 0.25)',
-                    color: '#38bdf8',
-                    padding: '0.3rem 0.75rem',
-                    borderRadius: '999px',
-                    fontSize: '0.8rem',
-                    fontWeight: '600'
-                  }}
-                >
-                  #{tag}
-                </span>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {/* Ingestion Integrity Check hash */}
-        <div style={{
-          padding: '0.75rem 1rem',
-          background: 'rgba(15, 23, 42, 0.8)',
-          border: '1px dashed rgba(255, 255, 255, 0.1)',
-          borderRadius: '0.5rem',
-          marginBottom: '2rem',
-          fontSize: '0.75rem',
-          color: '#64748b'
-        }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', marginBottom: '0.2rem', color: '#94a3b8', fontWeight: '600' }}>
-            <Hash size={13} />
-            <span>Pipeline Content Deduplication Hash:</span>
-          </div>
-          <code className="mono-font" style={{ color: '#38bdf8', wordBreak: 'break-all' }}>
-            {job.content_hash}
-          </code>
-        </div>
-
-        {/* Actions Footer */}
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '1rem' }}>
-          <div style={{ display: 'flex', gap: '0.5rem' }}>
             <button
-              onClick={() => onToggleSave(job.id)}
+              onClick={onClose}
               style={{
-                background: isSaved ? 'rgba(99, 102, 241, 0.25)' : 'rgba(255, 255, 255, 0.08)',
-                border: `1px solid ${isSaved ? '#818cf8' : 'rgba(255, 255, 255, 0.15)'}`,
-                color: isSaved ? '#a5b4fc' : '#e2e8f0',
-                padding: '0.6rem 1rem',
-                borderRadius: '0.6rem',
-                fontSize: '0.875rem',
-                fontWeight: '600',
+                background: 'rgba(255, 255, 255, 0.06)',
+                border: 'none',
+                color: '#94A3B8',
+                width: '32px',
+                height: '32px',
+                borderRadius: '50%',
                 cursor: 'pointer',
                 display: 'flex',
                 alignItems: 'center',
-                gap: '0.4rem'
+                justifyContent: 'center'
               }}
             >
-              <Bookmark size={16} fill={isSaved ? '#a5b4fc' : 'none'} />
-              <span>{isSaved ? 'Bookmarked' : 'Save Job'}</span>
-            </button>
-
-            <button
-              onClick={() => onShareJob(job)}
-              style={{
-                background: 'rgba(255, 255, 255, 0.08)',
-                border: '1px solid rgba(255, 255, 255, 0.15)',
-                color: '#e2e8f0',
-                padding: '0.6rem 1rem',
-                borderRadius: '0.6rem',
-                fontSize: '0.875rem',
-                fontWeight: '600',
-                cursor: 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '0.4rem'
-              }}
-            >
-              <Share2 size={16} />
-              <span>Share</span>
+              <X size={18} />
             </button>
           </div>
 
-          <a
-            href={job.apply_url}
-            target="_blank"
-            rel="noopener noreferrer"
-            style={{
-              background: 'linear-gradient(135deg, #0ea5e9 0%, #6366f1 100%)',
-              color: '#ffffff',
-              padding: '0.65rem 1.5rem',
-              borderRadius: '0.6rem',
-              fontSize: '0.9rem',
-              fontWeight: '700',
-              textDecoration: 'none',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '0.5rem',
-              boxShadow: '0 4px 16px rgba(14, 165, 233, 0.4)'
-            }}
-          >
-            <span>Proceed to Official Application</span>
-            <ExternalLink size={16} />
-          </a>
-        </div>
+          {/* Quick Meta Grid */}
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))',
+            gap: '1rem',
+            padding: '1.1rem',
+            background: 'rgba(255, 255, 255, 0.02)',
+            border: '1px solid rgba(255, 255, 255, 0.06)',
+            borderRadius: '0.85rem',
+            marginBottom: '1.5rem',
+            fontSize: '0.9rem',
+            color: '#CBD5E1'
+          }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+              <Building2 size={16} color="#3B82F6" />
+              <span>Company: <strong style={{ color: '#F8FAFC' }}>{job.company}</strong></span>
+            </div>
 
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+              <MapPin size={16} color="#8B5CF6" />
+              <span>Location: <strong style={{ color: '#F8FAFC' }}>{job.location || 'Remote Global'}</strong></span>
+            </div>
+
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+              <Calendar size={16} color="#94A3B8" />
+              <span>Indexed: <strong>{new Date(job.created_at).toLocaleString()}</strong></span>
+            </div>
+          </div>
+
+          {/* Skill Taxonomy */}
+          {tagsList.length > 0 && (
+            <div style={{ marginBottom: '1.75rem' }}>
+              <h4 style={{ fontSize: '0.825rem', textTransform: 'uppercase', color: '#64748B', fontWeight: '700', marginBottom: '0.65rem' }}>
+                Required Skills & Taxonomy
+              </h4>
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
+                {tagsList.map((tag, i) => (
+                  <span
+                    key={i}
+                    style={{
+                      background: 'rgba(59, 130, 246, 0.1)',
+                      border: '1px solid rgba(59, 130, 246, 0.25)',
+                      color: '#3B82F6',
+                      padding: '0.35rem 0.8rem',
+                      borderRadius: '999px',
+                      fontSize: '0.8rem',
+                      fontWeight: '600'
+                    }}
+                  >
+                    #{tag}
+                  </span>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Deduplication Hash */}
+          <div style={{
+            padding: '0.85rem 1rem',
+            background: 'rgba(15, 23, 42, 0.8)',
+            border: '1px dashed rgba(255, 255, 255, 0.08)',
+            borderRadius: '0.6rem',
+            marginBottom: '2rem',
+            fontSize: '0.75rem'
+          }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', marginBottom: '0.2rem', color: '#94A3B8', fontWeight: '600' }}>
+              <Hash size={13} color="#3B82F6" />
+              <span>Infallible SHA-256 Content Hash:</span>
+            </div>
+            <code className="mono-font" style={{ color: '#3B82F6', wordBreak: 'break-all' }}>
+              {job.content_hash}
+            </code>
+          </div>
+
+          {/* Actions */}
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '1rem', flexWrap: 'wrap' }}>
+            <div style={{ display: 'flex', gap: '0.5rem' }}>
+              <button
+                onClick={() => onToggleSave(job.id)}
+                style={{
+                  background: isSaved ? 'rgba(139, 92, 246, 0.25)' : 'rgba(255, 255, 255, 0.06)',
+                  border: `1px solid ${isSaved ? '#8B5CF6' : 'rgba(255, 255, 255, 0.12)'}`,
+                  color: isSaved ? '#C4B5FD' : '#E2E8F0',
+                  padding: '0.6rem 1rem',
+                  borderRadius: '0.65rem',
+                  fontSize: '0.875rem',
+                  fontWeight: '600',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '0.4rem'
+                }}
+              >
+                <Bookmark size={16} fill={isSaved ? '#C4B5FD' : 'none'} />
+                <span>{isSaved ? 'Bookmarked' : 'Save Job'}</span>
+              </button>
+
+              <button
+                onClick={() => onShareJob(job)}
+                style={{
+                  background: 'rgba(255, 255, 255, 0.06)',
+                  border: '1px solid rgba(255, 255, 255, 0.12)',
+                  color: '#E2E8F0',
+                  padding: '0.6rem 1rem',
+                  borderRadius: '0.65rem',
+                  fontSize: '0.875rem',
+                  fontWeight: '600',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '0.4rem'
+                }}
+              >
+                <Share2 size={16} />
+                <span>Share</span>
+              </button>
+            </div>
+
+            <a
+              href={job.apply_url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="shimmer-btn"
+              style={{
+                background: 'linear-gradient(135deg, #3B82F6 0%, #8B5CF6 100%)',
+                color: '#FFFFFF',
+                padding: '0.7rem 1.6rem',
+                borderRadius: '0.65rem',
+                fontSize: '0.9rem',
+                fontWeight: '700',
+                textDecoration: 'none',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.5rem',
+                boxShadow: '0 4px 18px rgba(59, 130, 246, 0.4)'
+              }}
+            >
+              <span>Apply on {job.company} Portal</span>
+              <ExternalLink size={16} />
+            </a>
+          </div>
+
+        </motion.div>
       </div>
-    </div>
+    </AnimatePresence>
   );
 }

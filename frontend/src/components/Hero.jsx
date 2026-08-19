@@ -1,17 +1,26 @@
-import React from 'react';
-import { Search, Filter, Globe, Sparkles, LayoutGrid, List, SlidersHorizontal, CheckCircle2, ArrowUpDown } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Search, Sparkles, SlidersHorizontal, ArrowUpDown, LayoutGrid, List, Globe2, ShieldCheck, Zap } from 'lucide-react';
+import CountUp from './CountUp';
+
+const SEARCH_PLACEHOLDERS = [
+  "Search 'React Remote'...",
+  "Search 'Golang Senior'...",
+  "Search 'Python AI Engine'...",
+  "Search 'Staff Architect'...",
+  "Search 'Full Stack Lead'..."
+];
 
 const POPULAR_TAGS = [
-  { label: 'All Jobs', val: '' },
+  { label: '⚡ All Jobs', val: '' },
   { label: '💻 Dev', val: 'dev' },
-  { label: '⚡ Senior', val: 'senior' },
+  { label: '🔥 Senior', val: 'senior' },
   { label: '🐍 Python', val: 'python' },
   { label: '🐹 Golang', val: 'golang' },
   { label: '⚛️ React', val: 'react' },
   { label: '🤖 AI / ML', val: 'ai' },
   { label: '☁️ Cloud', val: 'aws' },
-  { label: '💼 Executive', val: 'exec' },
-  { label: '📈 Marketing', val: 'marketing' }
+  { label: '💼 Executive', val: 'exec' }
 ];
 
 export default function Hero({
@@ -30,191 +39,318 @@ export default function Hero({
   totalJobsCount,
   showSavedOnly
 }) {
+  const [placeholderIndex, setPlaceholderIndex] = useState(0);
+  const [isSearchFocused, setIsSearchFocused] = useState(false);
+
+  // Cycle placeholder strings automatically
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setPlaceholderIndex((prev) => (prev + 1) % SEARCH_PLACEHOLDERS.length);
+    }, 3200);
+    return () => clearInterval(interval);
+  }, []);
+
+  // Framer Motion word reveal variants
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: { staggerChildren: 0.08, delayChildren: 0.1 }
+    }
+  };
+
+  const itemVariants = {
+    hidden: { opacity: 0, y: 20 },
+    visible: { opacity: 1, y: 0, transition: { duration: 0.5, ease: [0.16, 1, 0.3, 1] } }
+  };
+
   return (
-    <section style={{
-      maxWidth: '1200px',
-      margin: '2rem auto 1.5rem',
-      padding: '0 1.5rem',
-    }}>
-      {/* Main Title & Subtitle */}
-      <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
-        <div style={{
-          display: 'inline-flex',
-          alignItems: 'center',
-          gap: '0.5rem',
-          padding: '0.35rem 0.85rem',
-          borderRadius: '999px',
-          background: 'rgba(56, 189, 248, 0.1)',
-          border: '1px solid rgba(56, 189, 248, 0.25)',
-          color: '#38bdf8',
-          fontSize: '0.8rem',
-          fontWeight: '600',
-          marginBottom: '1rem'
-        }}>
-          <Sparkles size={14} />
-          <span>Automated Scrapling Ingestion • Adaptive Failover Engine</span>
-        </div>
+    <section style={{ maxWidth: '1240px', margin: '2rem auto 1.5rem', padding: '0 1.5rem' }}>
+      
+      {/* Hero Headline & Subtitle */}
+      <motion.div 
+        variants={containerVariants}
+        initial="hidden"
+        animate="visible"
+        style={{ textAlign: 'center', marginBottom: '2.5rem' }}
+      >
+        
+        {/* Top Pill Badge */}
+        <motion.div variants={itemVariants} style={{ display: 'inline-block', marginBottom: '1.25rem' }}>
+          <div style={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: '0.5rem',
+            padding: '0.4rem 0.95rem',
+            borderRadius: '999px',
+            background: 'rgba(59, 130, 246, 0.08)',
+            border: '1px solid rgba(59, 130, 246, 0.25)',
+            color: '#3B82F6',
+            fontSize: '0.8rem',
+            fontWeight: '600'
+          }}>
+            <Sparkles size={14} />
+            <span>Automated Ingestion Engine • Scrapling Adaptive selectors</span>
+          </div>
+        </motion.div>
 
-        <h1 style={{
-          fontSize: 'clamp(2rem, 4vw, 3.25rem)',
-          fontWeight: '800',
-          letterSpacing: '-1px',
-          lineHeight: 1.15,
-          marginBottom: '1rem'
-        }}>
-          Find Global <span className="gradient-text-cyan">Remote Opportunities</span> In Real-Time
-        </h1>
-
-        <p style={{
-          color: '#94a3b8',
-          fontSize: '1.05rem',
-          maxWidth: '680px',
-          margin: '0 auto',
-          fontWeight: '400'
-        }}>
-          Continuously indexed from public remote job APIs using Scrapling adaptive selectors, rate-throttling, and automatic fallbacks.
-        </p>
-      </div>
-
-      {/* Big Glass Search Bar */}
-      <div className="glass-panel" style={{
-        padding: '0.6rem 0.8rem 0.6rem 1.2rem',
-        display: 'flex',
-        alignItems: 'center',
-        gap: '0.75rem',
-        maxWidth: '780px',
-        margin: '0 auto 1.5rem',
-        border: '1px solid rgba(255, 255, 255, 0.14)',
-        borderRadius: '1rem',
-        boxShadow: '0 10px 30px rgba(0, 0, 0, 0.4)'
-      }}>
-        <Search size={22} color="#38bdf8" />
-        <input
-          type="text"
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-          placeholder="Search by job title, company, skills or keyword..."
+        {/* Staggered Heading */}
+        <motion.h1 
+          variants={itemVariants}
           style={{
-            flex: 1,
-            background: 'transparent',
-            border: 'none',
-            outline: 'none',
-            color: '#f8fafc',
-            fontSize: '1rem',
-            fontFamily: 'inherit',
+            fontSize: 'clamp(2.25rem, 5vw, 3.75rem)',
+            fontWeight: '800',
+            lineHeight: 1.12,
+            letterSpacing: '-0.03em',
+            color: '#F8FAFC',
+            maxWidth: '900px',
+            margin: '0 auto 1.25rem'
+          }}
+        >
+          Find Verified <span className="gradient-text-blue-violet">Remote Opportunities</span> In Real-Time
+        </motion.h1>
+
+        {/* Subtitle */}
+        <motion.p 
+          variants={itemVariants}
+          style={{
+            color: '#94A3B8',
+            fontSize: '1.1rem',
+            maxWidth: '680px',
+            margin: '0 auto 1.75rem',
+            fontWeight: '400',
+            lineHeight: 1.6
+          }}
+        >
+          Indexed directly from verified public remote job platforms using anti-fingerprint fetchers, dynamic throttling, and zero-downtime failovers.
+        </motion.p>
+
+        {/* Live Social Proof Stats Strip */}
+        <motion.div 
+          variants={itemVariants}
+          style={{
+            display: 'inline-flex',
+            flexWrap: 'wrap',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: '1.5rem',
+            padding: '0.55rem 1.25rem',
+            borderRadius: '999px',
+            background: 'rgba(255, 255, 255, 0.02)',
+            border: '1px solid rgba(255, 255, 255, 0.06)',
+            fontSize: '0.825rem',
+            color: '#94A3B8',
             fontWeight: '500'
           }}
-        />
-        {searchQuery && (
-          <button
-            onClick={() => setSearchQuery('')}
-            style={{
-              background: 'rgba(255, 255, 255, 0.1)',
-              border: 'none',
-              color: '#94a3b8',
-              borderRadius: '50%',
-              width: '24px',
-              height: '24px',
-              cursor: 'pointer',
-              fontSize: '0.8rem',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center'
-            }}
-          >
-            ✕
-          </button>
-        )}
-        <div className="mono-font" style={{
-          background: 'rgba(255, 255, 255, 0.07)',
-          border: '1px solid rgba(255, 255, 255, 0.1)',
-          color: '#64748b',
-          fontSize: '0.75rem',
-          padding: '0.25rem 0.5rem',
-          borderRadius: '0.4rem',
-          display: 'flex',
-          alignItems: 'center',
-          gap: '0.2rem'
-        }}>
-          <span>Press</span>
-          <kbd style={{ background: '#1e293b', color: '#cbd5e1', padding: '0.1rem 0.3rem', borderRadius: '0.2rem' }}>/</kbd>
-        </div>
-      </div>
+        >
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+            <span style={{ color: '#3B82F6', fontWeight: '800' }}>12,400+</span>
+            <span>Jobs Indexed</span>
+          </div>
+          <span>•</span>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+            <Globe2 size={14} color="#8B5CF6" />
+            <span style={{ color: '#F8FAFC', fontWeight: '700' }}>80+ Countries</span>
+          </div>
+          <span>•</span>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+            <span style={{ color: '#10B981', fontWeight: '700' }}>Updated Every 15 min</span>
+          </div>
+        </motion.div>
 
-      {/* Tag Filter Pills */}
+      </motion.div>
+
+      {/* Animated Search Bar */}
+      <motion.div
+        initial={{ scale: 0.96, opacity: 0 }}
+        animate={{ scale: 1, opacity: 1 }}
+        transition={{ duration: 0.4, delay: 0.3 }}
+        style={{
+          position: 'relative',
+          maxWidth: '780px',
+          margin: '0 auto 1.75rem',
+          borderRadius: '1.1rem',
+          padding: '2px',
+          background: isSearchFocused 
+            ? 'linear-gradient(135deg, #3B82F6 0%, #8B5CF6 100%)' 
+            : 'rgba(255, 255, 255, 0.1)',
+          boxShadow: isSearchFocused 
+            ? '0 0 25px rgba(59, 130, 246, 0.35)' 
+            : '0 10px 30px rgba(0, 0, 0, 0.4)',
+          transition: 'all 0.3s ease'
+        }}
+      >
+        <div 
+          className="glass-card"
+          style={{
+            padding: '0.75rem 1rem 0.75rem 1.25rem',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '0.85rem',
+            borderRadius: '1rem',
+            background: '#0A0E1A'
+          }}
+        >
+          <Search size={22} color={isSearchFocused ? '#3B82F6' : '#64748B'} />
+          
+          <div style={{ position: 'relative', flex: 1, height: '26px', display: 'flex', alignItems: 'center' }}>
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              onFocus={() => setIsSearchFocused(true)}
+              onBlur={() => setIsSearchFocused(false)}
+              style={{
+                width: '100%',
+                background: 'transparent',
+                border: 'none',
+                outline: 'none',
+                color: '#F8FAFC',
+                fontSize: '1rem',
+                fontFamily: 'inherit',
+                fontWeight: '500',
+                position: 'relative',
+                zIndex: 2
+              }}
+            />
+
+            {!searchQuery && (
+              <AnimatePresence mode="wait">
+                <motion.span
+                  key={placeholderIndex}
+                  initial={{ opacity: 0, y: 6 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -6 }}
+                  transition={{ duration: 0.25 }}
+                  style={{
+                    position: 'absolute',
+                    left: 0,
+                    color: '#64748B',
+                    fontSize: '0.975rem',
+                    pointerEvents: 'none',
+                    userSelect: 'none',
+                    zIndex: 1
+                  }}
+                >
+                  {SEARCH_PLACEHOLDERS[placeholderIndex]}
+                </motion.span>
+              </AnimatePresence>
+            )}
+          </div>
+
+          {searchQuery && (
+            <button
+              onClick={() => setSearchQuery('')}
+              style={{
+                background: 'rgba(255, 255, 255, 0.08)',
+                border: 'none',
+                color: '#94A3B8',
+                borderRadius: '50%',
+                width: '24px',
+                height: '24px',
+                cursor: 'pointer',
+                fontSize: '0.8rem'
+              }}
+            >
+              ✕
+            </button>
+          )}
+
+          <div className="mono-font" style={{
+            background: 'rgba(255, 255, 255, 0.06)',
+            border: '1px solid rgba(255, 255, 255, 0.1)',
+            color: '#64748B',
+            fontSize: '0.75rem',
+            padding: '0.2rem 0.5rem',
+            borderRadius: '0.4rem',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '0.25rem'
+          }}>
+            <span>Press</span>
+            <kbd style={{ background: '#1E293B', color: '#CBD5E1', padding: '0.05rem 0.35rem', borderRadius: '0.25rem' }}>/</kbd>
+          </div>
+        </div>
+      </motion.div>
+
+      {/* Filter Tag Pills with Elastic Scale Bounce */}
       <div style={{
         display: 'flex',
         flexWrap: 'wrap',
         justifyContent: 'center',
         gap: '0.5rem',
-        marginBottom: '1.75rem'
+        marginBottom: '2rem'
       }}>
         {POPULAR_TAGS.map((tag) => {
           const isActive = selectedTag === tag.val;
           return (
-            <button
+            <motion.button
               key={tag.label}
+              whileHover={{ scale: 1.06 }}
+              whileTap={{ scale: 0.94 }}
               onClick={() => setSelectedTag(isActive && tag.val !== '' ? '' : tag.val)}
               style={{
-                background: isActive ? 'linear-gradient(135deg, rgba(56, 189, 248, 0.25), rgba(99, 102, 241, 0.25))' : 'rgba(15, 23, 42, 0.6)',
-                border: `1px solid ${isActive ? '#38bdf8' : 'rgba(255, 255, 255, 0.08)'}`,
-                color: isActive ? '#38bdf8' : '#94a3b8',
-                padding: '0.4rem 0.9rem',
+                background: isActive 
+                  ? 'linear-gradient(135deg, #3B82F6 0%, #8B5CF6 100%)' 
+                  : 'rgba(255, 255, 255, 0.03)',
+                border: `1px solid ${isActive ? 'transparent' : 'rgba(255, 255, 255, 0.08)'}`,
+                color: isActive ? '#FFFFFF' : '#94A3B8',
+                padding: '0.45rem 1rem',
                 borderRadius: '999px',
                 fontSize: '0.825rem',
                 fontWeight: isActive ? '700' : '500',
                 cursor: 'pointer',
-                transition: 'all 0.2s ease'
+                boxShadow: isActive ? '0 4px 14px rgba(59, 130, 246, 0.3)' : 'none',
+                transition: 'background 0.2s ease'
               }}
             >
               {tag.label}
-            </button>
+            </motion.button>
           );
         })}
       </div>
 
-      {/* Toolbar Controls Bar */}
-      <div className="glass-panel" style={{
-        padding: '0.85rem 1.25rem',
+      {/* Toolbar Controls */}
+      <div className="glass-card" style={{
+        padding: '0.85rem 1.35rem',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'space-between',
         flexWrap: 'wrap',
         gap: '1rem',
-        borderRadius: '0.85rem',
-        background: 'rgba(15, 23, 42, 0.5)'
+        borderRadius: '0.9rem'
       }}>
-        {/* Left Stats */}
+        {/* Left Count */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-          <span style={{ fontSize: '0.9rem', fontWeight: '700', color: '#f8fafc' }}>
-            {showSavedOnly ? 'Saved Jobs' : 'Live Postings'}
+          <span style={{ fontSize: '0.9rem', fontWeight: '700', color: '#F8FAFC' }}>
+            {showSavedOnly ? 'Saved Bookmarks' : 'Live Opportunities'}
           </span>
           <span style={{
-            background: 'rgba(56, 189, 248, 0.15)',
-            color: '#38bdf8',
+            background: 'rgba(59, 130, 246, 0.15)',
+            color: '#3B82F6',
             fontWeight: '800',
-            fontSize: '0.8rem',
-            padding: '0.2rem 0.65rem',
+            fontSize: '0.825rem',
+            padding: '0.2rem 0.7rem',
             borderRadius: '999px',
-            border: '1px solid rgba(56, 189, 248, 0.3)'
+            border: '1px solid rgba(59, 130, 246, 0.3)'
           }}>
-            {totalJobsCount} {totalJobsCount === 1 ? 'job' : 'jobs'}
+            <CountUp end={totalJobsCount} /> jobs
           </span>
         </div>
 
-        {/* Right Controls */}
+        {/* Right Filter Selectors */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', flexWrap: 'wrap' }}>
           
-          {/* Source Dropdown Filter */}
+          {/* Source Dropdown */}
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-            <SlidersHorizontal size={15} color="#94a3b8" />
+            <SlidersHorizontal size={14} color="#94A3B8" />
             <select
               value={selectedSource}
               onChange={(e) => setSelectedSource(e.target.value)}
               style={{
-                background: 'rgba(30, 41, 59, 0.8)',
+                background: 'rgba(15, 23, 42, 0.8)',
                 border: '1px solid rgba(255, 255, 255, 0.1)',
-                color: '#e2e8f0',
+                color: '#E2E8F0',
                 padding: '0.35rem 0.65rem',
                 borderRadius: '0.5rem',
                 fontSize: '0.825rem',
@@ -224,21 +360,21 @@ export default function Hero({
               }}
             >
               <option value="all">All Sources</option>
-              <option value="remoteok">RemoteOK</option>
-              <option value="arbeitnow">Arbeitnow</option>
+              <option value="remoteok">RemoteOK API</option>
+              <option value="arbeitnow">Arbeitnow API</option>
             </select>
           </div>
 
           {/* Sort By Dropdown */}
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-            <ArrowUpDown size={15} color="#94a3b8" />
+            <ArrowUpDown size={14} color="#94A3B8" />
             <select
               value={sortBy}
               onChange={(e) => setSortBy(e.target.value)}
               style={{
-                background: 'rgba(30, 41, 59, 0.8)',
+                background: 'rgba(15, 23, 42, 0.8)',
                 border: '1px solid rgba(255, 255, 255, 0.1)',
-                color: '#e2e8f0',
+                color: '#E2E8F0',
                 padding: '0.35rem 0.65rem',
                 borderRadius: '0.5rem',
                 fontSize: '0.825rem',
@@ -253,13 +389,13 @@ export default function Hero({
             </select>
           </div>
 
-          {/* Remote Toggle Switch */}
+          {/* Remote Only Toggle */}
           <label style={{
             display: 'flex',
             alignItems: 'center',
             gap: '0.4rem',
             fontSize: '0.825rem',
-            color: '#cbd5e1',
+            color: '#CBD5E1',
             cursor: 'pointer',
             userSelect: 'none'
           }}>
@@ -267,7 +403,7 @@ export default function Hero({
               type="checkbox"
               checked={remoteOnly}
               onChange={(e) => setRemoteOnly(e.target.checked)}
-              style={{ accentColor: '#38bdf8', width: '15px', height: '15px', cursor: 'pointer' }}
+              style={{ accentColor: '#3B82F6', width: '15px', height: '15px', cursor: 'pointer' }}
             />
             <span>Remote Only</span>
           </label>
@@ -275,7 +411,7 @@ export default function Hero({
           {/* View Mode Toggle (Grid vs List) */}
           <div style={{
             display: 'flex',
-            background: 'rgba(30, 41, 59, 0.8)',
+            background: 'rgba(15, 23, 42, 0.8)',
             border: '1px solid rgba(255, 255, 255, 0.1)',
             borderRadius: '0.5rem',
             padding: '0.15rem'
@@ -283,15 +419,14 @@ export default function Hero({
             <button
               onClick={() => setViewMode('grid')}
               style={{
-                background: viewMode === 'grid' ? '#38bdf8' : 'transparent',
-                color: viewMode === 'grid' ? '#0f172a' : '#94a3b8',
+                background: viewMode === 'grid' ? '#3B82F6' : 'transparent',
+                color: viewMode === 'grid' ? '#FFFFFF' : '#94A3B8',
                 border: 'none',
                 borderRadius: '0.35rem',
                 padding: '0.25rem 0.45rem',
                 cursor: 'pointer',
                 display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center'
+                alignItems: 'center'
               }}
               title="Grid View"
             >
@@ -300,15 +435,14 @@ export default function Hero({
             <button
               onClick={() => setViewMode('list')}
               style={{
-                background: viewMode === 'list' ? '#38bdf8' : 'transparent',
-                color: viewMode === 'list' ? '#0f172a' : '#94a3b8',
+                background: viewMode === 'list' ? '#3B82F6' : 'transparent',
+                color: viewMode === 'list' ? '#FFFFFF' : '#94A3B8',
                 border: 'none',
                 borderRadius: '0.35rem',
                 padding: '0.25rem 0.45rem',
                 cursor: 'pointer',
                 display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center'
+                alignItems: 'center'
               }}
               title="List View"
             >

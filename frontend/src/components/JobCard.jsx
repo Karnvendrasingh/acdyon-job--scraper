@@ -1,18 +1,39 @@
 import React from 'react';
-import { Building2, MapPin, ExternalLink, Bookmark, Share2, Clock, Check } from 'lucide-react';
+import { motion } from 'framer-motion';
+import { Building2, MapPin, ExternalLink, Bookmark, Share2, Clock, CheckCircle2, Shield } from 'lucide-react';
 
 function getCompanyAvatarGradient(name = 'Company') {
   const colors = [
-    'linear-gradient(135deg, #38bdf8 0%, #3b82f6 100%)',
-    'linear-gradient(135deg, #818cf8 0%, #6366f1 100%)',
-    'linear-gradient(135deg, #34d399 0%, #10b981 100%)',
-    'linear-gradient(135deg, #fb7185 0%, #e11d48 100%)',
-    'linear-gradient(135deg, #fbbf24 0%, #d97706 100%)',
-    'linear-gradient(135deg, #c084fc 0%, #9333ea 100%)'
+    'linear-gradient(135deg, #3B82F6 0%, #8B5CF6 100%)',
+    'linear-gradient(135deg, #10B981 0%, #059669 100%)',
+    'linear-gradient(135deg, #F43F5E 0%, #E11D48 100%)',
+    'linear-gradient(135deg, #F59E0B 0%, #D97706 100%)',
+    'linear-gradient(135deg, #A855F7 0%, #7E22CE 100%)',
+    'linear-gradient(135deg, #06B6D4 0%, #0891B2 100%)'
   ];
   let hash = 0;
   for (let i = 0; i < name.length; i++) hash += name.charCodeAt(i);
   return colors[hash % colors.length];
+}
+
+function getRegionBadge(location = '') {
+  const loc = location.toLowerCase();
+  if (loc.includes('usa') || loc.includes('united states') || loc.includes('us')) return { flag: '🇺🇸', label: 'USA Remote' };
+  if (loc.includes('europe') || loc.includes('eu') || loc.includes('uk') || loc.includes('germany')) return { flag: '🇪🇺', label: 'Europe Remote' };
+  if (loc.includes('latam') || loc.includes('brazil') || loc.includes('remoto')) return { flag: '🇦🇸', label: 'LATAM Remote' };
+  if (loc.includes('asia') || loc.includes('india') || loc.includes('apac')) return { flag: '🌏', label: 'APAC Remote' };
+  return { flag: '🌐', label: location || 'Global Remote' };
+}
+
+function getTagStyle(tag = '') {
+  const t = tag.toLowerCase();
+  if (t.includes('senior') || t.includes('ai') || t.includes('lead') || t.includes('exec')) {
+    return { bg: 'rgba(245, 158, 11, 0.12)', border: 'rgba(245, 158, 11, 0.3)', color: '#F59E0B' };
+  }
+  if (t.includes('python') || t.includes('golang') || t.includes('react') || t.includes('dev')) {
+    return { bg: 'rgba(59, 130, 246, 0.12)', border: 'rgba(59, 130, 246, 0.3)', color: '#3B82F6' };
+  }
+  return { bg: 'rgba(255, 255, 255, 0.05)', border: 'rgba(255, 255, 255, 0.09)', color: '#CBD5E1' };
 }
 
 function formatRelativeTime(dateStr) {
@@ -46,38 +67,43 @@ export default function JobCard({
 
   const avatarGradient = getCompanyAvatarGradient(job.company);
   const companyInitial = job.company ? job.company.charAt(0).toUpperCase() : 'J';
+  const region = getRegionBadge(job.location);
 
   if (viewMode === 'list') {
     return (
-      <div 
-        className="glass-panel glass-panel-hover"
+      <motion.div 
+        initial={{ opacity: 0, y: 15 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.3 }}
+        className="glass-card"
         style={{
-          padding: '1rem 1.25rem',
+          padding: '1rem 1.35rem',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
           gap: '1rem',
-          marginBottom: '0.75rem',
-          borderRadius: '0.85rem'
+          marginBottom: '0.75rem'
         }}
       >
         <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', flex: 1, minWidth: 0 }}>
-          {/* Avatar */}
-          <div style={{
-            width: '42px',
-            height: '42px',
-            borderRadius: '10px',
-            background: avatarGradient,
-            color: '#ffffff',
-            fontWeight: '800',
-            fontSize: '1.2rem',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            flexShrink: 0,
-            boxShadow: '0 4px 12px rgba(0, 0, 0, 0.2)'
-          }}>
-            {companyInitial}
+          {/* Avatar with Verified Badge */}
+          <div style={{ position: 'relative', flexShrink: 0 }}>
+            <div style={{
+              width: '44px',
+              height: '44px',
+              borderRadius: '12px',
+              background: avatarGradient,
+              color: '#FFFFFF',
+              fontWeight: '800',
+              fontSize: '1.25rem',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              boxShadow: '0 4px 14px rgba(0, 0, 0, 0.3)'
+            }}>
+              {companyInitial}
+            </div>
+            <CheckCircle2 size={15} color="#10B981" style={{ position: 'absolute', bottom: '-2px', right: '-2px', background: '#0A0E1A', borderRadius: '50%' }} />
           </div>
 
           {/* Details */}
@@ -87,58 +113,57 @@ export default function JobCard({
               style={{
                 fontSize: '1.05rem',
                 fontWeight: '700',
-                color: '#f8fafc',
+                color: '#F8FAFC',
                 cursor: 'pointer',
                 whiteSpace: 'nowrap',
                 overflow: 'hidden',
                 textOverflow: 'ellipsis',
                 marginBottom: '0.2rem'
               }}
-              className="job-title-hover"
             >
               {job.title}
             </h3>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', fontSize: '0.825rem', color: '#94a3b8' }}>
-              <span style={{ fontWeight: '600', color: '#cbd5e1' }}>{job.company}</span>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.85rem', fontSize: '0.825rem', color: '#94A3B8', flexWrap: 'wrap' }}>
+              <span style={{ fontWeight: '600', color: '#CBD5E1' }}>{job.company}</span>
               <span>•</span>
               <span style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
-                <MapPin size={13} color="#38bdf8" />
-                {job.location || 'Remote'}
+                <span>{region.flag}</span>
+                <span>{region.label}</span>
               </span>
               <span>•</span>
               <span style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
-                <Clock size={13} />
+                <Clock size={13} color="#64748B" />
                 {formatRelativeTime(job.created_at)}
               </span>
             </div>
           </div>
         </div>
 
-        {/* Right Actions */}
+        {/* Actions */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexShrink: 0 }}>
           <button
             onClick={() => onToggleSave(job.id)}
             style={{
-              background: isSaved ? 'rgba(99, 102, 241, 0.2)' : 'rgba(255, 255, 255, 0.05)',
-              border: `1px solid ${isSaved ? '#818cf8' : 'rgba(255, 255, 255, 0.1)'}`,
-              color: isSaved ? '#818cf8' : '#64748b',
-              padding: '0.45rem',
-              borderRadius: '0.5rem',
+              background: isSaved ? 'rgba(139, 92, 246, 0.2)' : 'rgba(255, 255, 255, 0.04)',
+              border: `1px solid ${isSaved ? '#8B5CF6' : 'rgba(255, 255, 255, 0.08)'}`,
+              color: isSaved ? '#8B5CF6' : '#64748B',
+              padding: '0.5rem',
+              borderRadius: '0.55rem',
               cursor: 'pointer'
             }}
             title={isSaved ? 'Remove Bookmark' : 'Bookmark Job'}
           >
-            <Bookmark size={16} fill={isSaved ? '#818cf8' : 'none'} />
+            <Bookmark size={16} fill={isSaved ? '#8B5CF6' : 'none'} />
           </button>
 
           <button
             onClick={() => onShareJob(job)}
             style={{
-              background: 'rgba(255, 255, 255, 0.05)',
-              border: '1px solid rgba(255, 255, 255, 0.1)',
-              color: '#94a3b8',
-              padding: '0.45rem',
-              borderRadius: '0.5rem',
+              background: 'rgba(255, 255, 255, 0.04)',
+              border: '1px solid rgba(255, 255, 255, 0.08)',
+              color: '#94A3B8',
+              padding: '0.5rem',
+              borderRadius: '0.55rem',
               cursor: 'pointer'
             }}
             title="Share Job"
@@ -150,69 +175,75 @@ export default function JobCard({
             href={job.apply_url}
             target="_blank"
             rel="noopener noreferrer"
+            className="shimmer-btn"
             style={{
-              background: 'linear-gradient(135deg, #38bdf8 0%, #3b82f6 100%)',
-              color: '#0f172a',
-              padding: '0.45rem 1rem',
-              borderRadius: '0.5rem',
+              background: 'linear-gradient(135deg, #3B82F6 0%, #8B5CF6 100%)',
+              color: '#FFFFFF',
+              padding: '0.5rem 1.1rem',
+              borderRadius: '0.55rem',
               fontSize: '0.825rem',
               fontWeight: '700',
               textDecoration: 'none',
               display: 'flex',
               alignItems: 'center',
-              gap: '0.35rem'
+              gap: '0.35rem',
+              boxShadow: '0 4px 12px rgba(59, 130, 246, 0.25)'
             }}
           >
             <span>Apply</span>
             <ExternalLink size={13} />
           </a>
         </div>
-      </div>
+      </motion.div>
     );
   }
 
   // Grid View Mode
   return (
-    <div 
-      className="glass-panel glass-panel-hover"
+    <motion.div 
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.4 }}
+      className="glass-card"
       style={{
-        padding: '1.35rem',
+        padding: '1.5rem',
         display: 'flex',
         flexDirection: 'column',
         justifyContent: 'space-between',
-        borderRadius: '1rem',
-        position: 'relative',
         height: '100%'
       }}
     >
-      {/* Top Company Info & Bookmark */}
       <div>
-        <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: '1rem' }}>
+        {/* Top Header: Company Avatar + Region Flag + Actions */}
+        <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: '1.1rem' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-            <div style={{
-              width: '46px',
-              height: '46px',
-              borderRadius: '12px',
-              background: avatarGradient,
-              color: '#ffffff',
-              fontWeight: '800',
-              fontSize: '1.3rem',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              flexShrink: 0,
-              boxShadow: '0 4px 14px rgba(0, 0, 0, 0.25)'
-            }}>
-              {companyInitial}
+            <div style={{ position: 'relative' }}>
+              <div style={{
+                width: '48px',
+                height: '48px',
+                borderRadius: '14px',
+                background: avatarGradient,
+                color: '#FFFFFF',
+                fontWeight: '800',
+                fontSize: '1.3rem',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                boxShadow: '0 4px 14px rgba(0, 0, 0, 0.35)'
+              }}>
+                {companyInitial}
+              </div>
+              <CheckCircle2 size={16} color="#10B981" style={{ position: 'absolute', bottom: '-2px', right: '-2px', background: '#0A0E1A', borderRadius: '50%' }} />
             </div>
+
             <div>
-              <div style={{ fontSize: '0.875rem', fontWeight: '700', color: '#e2e8f0', display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
-                <Building2 size={13} color="#94a3b8" />
+              <div style={{ fontSize: '0.9rem', fontWeight: '700', color: '#F8FAFC', display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
+                <Building2 size={14} color="#94A3B8" />
                 <span>{job.company}</span>
               </div>
-              <div style={{ fontSize: '0.775rem', color: '#64748b', display: 'flex', alignItems: 'center', gap: '0.25rem', marginTop: '0.15rem' }}>
-                <MapPin size={12} color="#38bdf8" />
-                <span>{job.location || 'Remote'}</span>
+              <div style={{ fontSize: '0.775rem', color: '#64748B', display: 'flex', alignItems: 'center', gap: '0.3rem', marginTop: '0.15rem' }}>
+                <span>{region.flag}</span>
+                <span>{region.label}</span>
               </div>
             </div>
           </div>
@@ -221,29 +252,27 @@ export default function JobCard({
             <button
               onClick={() => onToggleSave(job.id)}
               style={{
-                background: isSaved ? 'rgba(99, 102, 241, 0.2)' : 'rgba(255, 255, 255, 0.05)',
-                border: `1px solid ${isSaved ? '#818cf8' : 'rgba(255, 255, 255, 0.1)'}`,
-                color: isSaved ? '#818cf8' : '#64748b',
+                background: isSaved ? 'rgba(139, 92, 246, 0.2)' : 'rgba(255, 255, 255, 0.04)',
+                border: `1px solid ${isSaved ? '#8B5CF6' : 'rgba(255, 255, 255, 0.08)'}`,
+                color: isSaved ? '#8B5CF6' : '#64748B',
                 padding: '0.45rem',
                 borderRadius: '0.5rem',
-                cursor: 'pointer',
-                transition: 'all 0.2s ease'
+                cursor: 'pointer'
               }}
               title={isSaved ? 'Remove Bookmark' : 'Bookmark Job'}
             >
-              <Bookmark size={16} fill={isSaved ? '#818cf8' : 'none'} />
+              <Bookmark size={15} fill={isSaved ? '#8B5CF6' : 'none'} />
             </button>
 
             <button
               onClick={() => onShareJob(job)}
               style={{
-                background: 'rgba(255, 255, 255, 0.05)',
-                border: '1px solid rgba(255, 255, 255, 0.1)',
-                color: '#94a3b8',
+                background: 'rgba(255, 255, 255, 0.04)',
+                border: '1px solid rgba(255, 255, 255, 0.08)',
+                color: '#94A3B8',
                 padding: '0.45rem',
                 borderRadius: '0.5rem',
-                cursor: 'pointer',
-                transition: 'all 0.2s ease'
+                cursor: 'pointer'
               }}
               title="Share Job"
             >
@@ -256,61 +285,62 @@ export default function JobCard({
         <h3 
           onClick={() => onOpenModal(job)}
           style={{
-            fontSize: '1.15rem',
+            fontSize: '1.2rem',
             fontWeight: '700',
-            color: '#f8fafc',
+            color: '#F8FAFC',
             lineHeight: 1.35,
-            marginBottom: '0.85rem',
+            marginBottom: '1rem',
             cursor: 'pointer',
             transition: 'color 0.2s ease'
           }}
-          className="job-title-hover"
         >
           {job.title}
         </h3>
 
-        {/* Tags Container */}
+        {/* Tag Badges with Dynamic Color Coding */}
         {tagsList.length > 0 && (
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.4rem', marginBottom: '1.25rem' }}>
-            {tagsList.slice(0, 5).map((t, idx) => (
-              <span
-                key={idx}
-                onClick={(e) => { e.stopPropagation(); onSelectTag(t); }}
-                style={{
-                  background: 'rgba(255, 255, 255, 0.06)',
-                  border: '1px solid rgba(255, 255, 255, 0.09)',
-                  color: '#cbd5e1',
-                  padding: '0.2rem 0.6rem',
-                  borderRadius: '999px',
-                  fontSize: '0.725rem',
-                  fontWeight: '600',
-                  cursor: 'pointer',
-                  transition: 'all 0.2s ease'
-                }}
-              >
-                {t}
-              </span>
-            ))}
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.45rem', marginBottom: '1.35rem' }}>
+            {tagsList.slice(0, 5).map((t, idx) => {
+              const tagStyle = getTagStyle(t);
+              return (
+                <span
+                  key={idx}
+                  onClick={(e) => { e.stopPropagation(); onSelectTag(t); }}
+                  style={{
+                    background: tagStyle.bg,
+                    border: `1px solid ${tagStyle.border}`,
+                    color: tagStyle.color,
+                    padding: '0.2rem 0.65rem',
+                    borderRadius: '999px',
+                    fontSize: '0.725rem',
+                    fontWeight: '600',
+                    cursor: 'pointer'
+                  }}
+                >
+                  {t}
+                </span>
+              );
+            })}
           </div>
         )}
       </div>
 
-      {/* Footer Info & Apply Button */}
+      {/* Card Footer */}
       <div style={{
-        paddingTop: '0.85rem',
-        borderTop: '1px solid rgba(255, 255, 255, 0.08)',
+        paddingTop: '1rem',
+        borderTop: '1px solid rgba(255, 255, 255, 0.06)',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'space-between',
         fontSize: '0.775rem',
-        color: '#64748b'
+        color: '#64748B'
       }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
           <span style={{
-            padding: '0.15rem 0.45rem',
-            borderRadius: '0.3rem',
-            background: job.source === 'remoteok' ? 'rgba(56, 189, 248, 0.12)' : 'rgba(168, 85, 247, 0.12)',
-            color: job.source === 'remoteok' ? '#38bdf8' : '#c084fc',
+            padding: '0.15rem 0.5rem',
+            borderRadius: '0.35rem',
+            background: job.source === 'remoteok' ? 'rgba(59, 130, 246, 0.12)' : 'rgba(139, 92, 246, 0.12)',
+            color: job.source === 'remoteok' ? '#3B82F6' : '#C4B5FD',
             fontWeight: '700',
             textTransform: 'uppercase',
             fontSize: '0.65rem'
@@ -325,25 +355,25 @@ export default function JobCard({
           href={job.apply_url}
           target="_blank"
           rel="noopener noreferrer"
+          className="shimmer-btn"
           style={{
-            background: 'linear-gradient(135deg, #38bdf8 0%, #3b82f6 100%)',
-            color: '#0f172a',
-            padding: '0.45rem 1rem',
-            borderRadius: '0.5rem',
+            background: 'linear-gradient(135deg, #3B82F6 0%, #8B5CF6 100%)',
+            color: '#FFFFFF',
+            padding: '0.5rem 1.1rem',
+            borderRadius: '0.6rem',
             fontSize: '0.825rem',
             fontWeight: '700',
             textDecoration: 'none',
             display: 'flex',
             alignItems: 'center',
             gap: '0.35rem',
-            boxShadow: '0 4px 12px rgba(56, 189, 248, 0.25)',
-            transition: 'all 0.2s ease'
+            boxShadow: '0 4px 14px rgba(59, 130, 246, 0.3)'
           }}
         >
           <span>Apply Now</span>
           <ExternalLink size={13} />
         </a>
       </div>
-    </div>
+    </motion.div>
   );
 }

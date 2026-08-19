@@ -1,11 +1,12 @@
 import React, { useState, useEffect, useMemo } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import Navbar from './components/Navbar';
 import Hero from './components/Hero';
 import JobCard from './components/JobCard';
 import JobModal from './components/JobModal';
 import TelemetryModal from './components/TelemetryModal';
 import Toast from './components/Toast';
-import { AlertCircle, Inbox, RefreshCw, Cpu, Layers } from 'lucide-react';
+import { AlertCircle, Inbox, RefreshCw, Cpu, Layers, Sparkles } from 'lucide-react';
 
 export default function App() {
   const [jobs, setJobs] = useState([]);
@@ -34,13 +35,11 @@ export default function App() {
   const [isTelemetryOpen, setIsTelemetryOpen] = useState(false);
   const [toastMessage, setToastMessage] = useState(null);
 
-  // Show temporary toast
   const triggerToast = (msg) => {
     setToastMessage(msg);
-    setTimeout(() => setToastMessage(null), 3000);
+    setTimeout(() => setToastMessage(null), 3200);
   };
 
-  // Fetch Jobs & Telemetry from FastAPI backend
   const fetchData = async () => {
     try {
       const [jobsRes, telemetryRes] = await Promise.all([
@@ -69,7 +68,7 @@ export default function App() {
     fetchData();
   }, []);
 
-  // Keyboard shortcut listener ('/' key for quick search focus)
+  // '/' Keyboard shortcut listener
   useEffect(() => {
     const handleKeyDown = (e) => {
       if (e.key === '/' && document.activeElement.tagName !== 'INPUT' && document.activeElement.tagName !== 'TEXTAREA') {
@@ -82,7 +81,7 @@ export default function App() {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, []);
 
-  // Sync saved jobs to localStorage
+  // Save to localStorage
   useEffect(() => {
     try {
       localStorage.setItem('scrapling_saved_jobs', JSON.stringify(savedJobIds));
@@ -106,35 +105,27 @@ export default function App() {
   const handleShareJob = (job) => {
     if (navigator.clipboard) {
       navigator.clipboard.writeText(job.apply_url);
-      triggerToast("Job application link copied to clipboard!");
+      triggerToast("Application link copied to clipboard!");
     }
   };
 
   const handleManualSync = () => {
     setIsRefreshing(true);
-    triggerToast("Syncing latest job postings from pipeline...");
+    triggerToast("Syncing pipeline & refreshing opportunities...");
     fetchData();
   };
 
-  // Filtered & Sorted Jobs computed list
   const filteredJobs = useMemo(() => {
     return jobs.filter((job) => {
-      // Saved filter
       if (showSavedOnly && !savedJobIds.includes(job.id)) {
         return false;
       }
-
-      // Source filter
       if (selectedSource !== 'all' && job.source !== selectedSource) {
         return false;
       }
-
-      // Remote filter
       if (remoteOnly && job.location && !job.location.toLowerCase().includes('remote') && job.location.trim() !== '') {
         return false;
       }
-
-      // Tag filter
       if (selectedTag) {
         let tagStr = '';
         if (job.tags) {
@@ -148,8 +139,6 @@ export default function App() {
           return false;
         }
       }
-
-      // Search Query filter
       if (searchQuery.trim()) {
         const query = searchQuery.toLowerCase();
         const titleMatch = job.title.toLowerCase().includes(query);
@@ -163,7 +152,6 @@ export default function App() {
           return false;
         }
       }
-
       return true;
     }).sort((a, b) => {
       if (sortBy === 'newest') {
@@ -180,14 +168,11 @@ export default function App() {
   return (
     <div style={{ position: 'relative', minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
       
-      {/* Background Orbs */}
-      <div className="ambient-glow">
-        <div className="glow-orb-1" />
-        <div className="glow-orb-2" />
-        <div className="glow-orb-3" />
-      </div>
+      {/* Radial Gradient Canvas */}
+      <div className="ambient-canvas" />
+      <div className="grid-texture" />
 
-      {/* Navigation Header */}
+      {/* Navbar Header */}
       <Navbar
         onRefresh={handleManualSync}
         isRefreshing={isRefreshing}
@@ -199,10 +184,10 @@ export default function App() {
         totalJobsCount={jobs.length}
       />
 
-      {/* Main Content Area */}
+      {/* Main Container */}
       <main style={{ flex: 1, position: 'relative', zIndex: 10 }}>
         
-        {/* Hero & Filter Section */}
+        {/* Hero Section */}
         <Hero
           searchQuery={searchQuery}
           setSearchQuery={setSearchQuery}
@@ -220,72 +205,84 @@ export default function App() {
           showSavedOnly={showSavedOnly}
         />
 
-        {/* Jobs Container Grid */}
-        <section style={{ maxWidth: '1200px', margin: '0 auto 4rem', padding: '0 1.5rem' }}>
+        {/* Live Opportunities List/Grid */}
+        <section style={{ maxWidth: '1240px', margin: '0 auto 4rem', padding: '0 1.5rem' }}>
           
-          {/* Stale Warning Banner if degraded */}
+          {/* Degraded Pipeline Alert */}
           {telemetryData.stale && (
-            <div style={{
-              background: 'rgba(251, 113, 133, 0.12)',
-              border: '1px solid rgba(251, 113, 133, 0.3)',
-              color: '#fb7185',
-              padding: '1rem 1.25rem',
-              borderRadius: '0.85rem',
-              marginBottom: '1.5rem',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '0.75rem',
-              fontSize: '0.9rem',
-              fontWeight: '600'
-            }}>
+            <motion.div 
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              style={{
+                background: 'rgba(244, 63, 94, 0.1)',
+                border: '1px solid rgba(244, 63, 94, 0.3)',
+                color: '#F43F5E',
+                padding: '1rem 1.25rem',
+                borderRadius: '0.85rem',
+                marginBottom: '1.75rem',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.75rem',
+                fontSize: '0.9rem',
+                fontWeight: '600'
+              }}
+            >
               <AlertCircle size={20} />
-              <span>Notice: Data ingestion might be delayed. Automatic failover active.</span>
-            </div>
+              <span>Notice: Data ingestion pipeline is degraded. Auto-failover router active.</span>
+            </motion.div>
           )}
 
-          {/* Loading Skeletons */}
+          {/* Skeleton Shimmer Loading State */}
           {isLoading ? (
             <div style={{
               display: 'grid',
-              gridTemplateColumns: viewMode === 'grid' ? 'repeat(auto-fill, minmax(320px, 1fr))' : '1fr',
-              gap: '1.25rem'
+              gridTemplateColumns: viewMode === 'grid' ? 'repeat(auto-fill, minmax(340px, 1fr))' : '1fr',
+              gap: '1.35rem'
             }}>
               {[1, 2, 3, 4, 5, 6].map(i => (
-                <div key={i} className="skeleton-pulse" style={{ height: viewMode === 'grid' ? '220px' : '75px' }} />
+                <div key={i} className="skeleton-shimmer" style={{ height: viewMode === 'grid' ? '230px' : '78px' }} />
               ))}
             </div>
           ) : filteredJobs.length === 0 ? (
             /* Empty State */
-            <div className="glass-panel" style={{
-              padding: '4rem 2rem',
-              textAlign: 'center',
-              borderRadius: '1.25rem',
-              maxWidth: '560px',
-              margin: '2rem auto'
-            }}>
+            <motion.div 
+              initial={{ opacity: 0, scale: 0.96 }}
+              animate={{ opacity: 1, scale: 1 }}
+              className="glass-card"
+              style={{
+                padding: '4.5rem 2rem',
+                textAlign: 'center',
+                borderRadius: '1.25rem',
+                maxWidth: '560px',
+                margin: '2rem auto'
+              }}
+            >
               <div style={{
-                width: '64px',
-                height: '64px',
+                width: '68px',
+                height: '68px',
                 borderRadius: '50%',
-                background: 'rgba(56, 189, 248, 0.1)',
-                color: '#38bdf8',
+                background: 'rgba(59, 130, 246, 0.1)',
+                border: '1px solid rgba(59, 130, 246, 0.25)',
+                color: '#3B82F6',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
                 margin: '0 auto 1.25rem'
               }}>
-                <Inbox size={32} />
+                <Inbox size={34} />
               </div>
-              <h3 style={{ fontSize: '1.35rem', fontWeight: '700', color: '#f8fafc', marginBottom: '0.5rem' }}>
+              <h3 style={{ fontSize: '1.4rem', fontWeight: '800', color: '#F8FAFC', marginBottom: '0.5rem' }}>
                 {showSavedOnly ? 'No Saved Jobs Yet' : 'No Matching Opportunities Found'}
               </h3>
-              <p style={{ color: '#94a3b8', fontSize: '0.925rem', marginBottom: '1.5rem' }}>
+              <p style={{ color: '#94A3B8', fontSize: '0.95rem', marginBottom: '1.75rem', lineHeight: 1.6 }}>
                 {showSavedOnly 
-                  ? 'Bookmark job cards by clicking the star icon to save them for quick review.' 
-                  : 'Try clearing your search query or adjusting your tag filters to see more results.'}
+                  ? 'Bookmark job cards by clicking the star icon to save them for instant access.' 
+                  : 'Try clearing your search terms or adjusting skill tag filters to explore available postings.'}
               </p>
               {(searchQuery || selectedTag || selectedSource !== 'all' || showSavedOnly) && (
-                <button
+                <motion.button
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
                   onClick={() => {
                     setSearchQuery('');
                     setSelectedTag('');
@@ -293,26 +290,26 @@ export default function App() {
                     setShowSavedOnly(false);
                   }}
                   style={{
-                    background: 'rgba(56, 189, 248, 0.15)',
-                    border: '1px solid #38bdf8',
-                    color: '#38bdf8',
-                    padding: '0.6rem 1.25rem',
-                    borderRadius: '0.6rem',
+                    background: 'rgba(59, 130, 246, 0.15)',
+                    border: '1px solid #3B82F6',
+                    color: '#3B82F6',
+                    padding: '0.65rem 1.35rem',
+                    borderRadius: '0.65rem',
                     fontWeight: '700',
                     fontSize: '0.875rem',
                     cursor: 'pointer'
                   }}
                 >
                   Reset All Filters
-                </button>
+                </motion.button>
               )}
-            </div>
+            </motion.div>
           ) : (
-            /* Render Job Cards List or Grid */
+            /* Cards Container */
             <div style={{
               display: 'grid',
               gridTemplateColumns: viewMode === 'grid' ? 'repeat(auto-fill, minmax(340px, 1fr))' : '1fr',
-              gap: '1.25rem'
+              gap: '1.35rem'
             }}>
               {filteredJobs.map(job => (
                 <JobCard
@@ -332,7 +329,7 @@ export default function App() {
         </section>
       </main>
 
-      {/* Modals & Toasts */}
+      {/* Modals & Toast Notifications */}
       <JobModal
         job={activeJobModal}
         onClose={() => setActiveJobModal(null)}
@@ -355,13 +352,13 @@ export default function App() {
       <footer style={{
         position: 'relative',
         zIndex: 10,
-        background: 'rgba(7, 9, 14, 0.95)',
+        background: 'rgba(10, 14, 26, 0.95)',
         borderTop: '1px solid rgba(255, 255, 255, 0.08)',
         padding: '2.5rem 1.5rem',
         marginTop: 'auto'
       }}>
         <div style={{
-          maxWidth: '1200px',
+          maxWidth: '1240px',
           margin: '0 auto',
           display: 'flex',
           flexWrap: 'wrap',
@@ -370,21 +367,20 @@ export default function App() {
           gap: '1.5rem'
         }}>
           <div>
-            <div style={{ fontSize: '1rem', fontWeight: '800', color: '#f8fafc', marginBottom: '0.3rem', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-              <Layers size={18} color="#38bdf8" />
-              <span>Job Scraper Pipeline</span>
+            <div style={{ fontSize: '1.05rem', fontWeight: '800', color: '#F8FAFC', marginBottom: '0.35rem', display: 'flex', alignItems: 'center', gap: '0.45rem' }}>
+              <Layers size={18} color="#3B82F6" />
+              <span>Job Scraper Engine</span>
             </div>
-            <p style={{ fontSize: '0.8rem', color: '#64748b' }}>
-              Resilient Scraping Ingestion Engine • Continuous 30-min crawl loop with automatic failover
+            <p style={{ fontSize: '0.825rem', color: '#64748B' }}>
+              Resilient Ingestion Engine • Continuous 30-min crawl loop with automatic failover circuit breaker
             </p>
           </div>
 
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem', fontSize: '0.75rem', fontWeight: '600' }}>
-            <span style={{ padding: '0.3rem 0.6rem', borderRadius: '0.4rem', background: 'rgba(255, 255, 255, 0.05)', color: '#94a3b8' }}>FastAPI</span>
-            <span style={{ padding: '0.3rem 0.6rem', borderRadius: '0.4rem', background: 'rgba(255, 255, 255, 0.05)', color: '#94a3b8' }}>Scrapling</span>
-            <span style={{ padding: '0.3rem 0.6rem', borderRadius: '0.4rem', background: 'rgba(255, 255, 255, 0.05)', color: '#94a3b8' }}>APScheduler</span>
-            <span style={{ padding: '0.3rem 0.6rem', borderRadius: '0.4rem', background: 'rgba(255, 255, 255, 0.05)', color: '#94a3b8' }}>SQLModel</span>
-            <span style={{ padding: '0.3rem 0.6rem', borderRadius: '0.4rem', background: 'rgba(56, 189, 248, 0.15)', color: '#38bdf8' }}>React + Vite</span>
+            <span style={{ padding: '0.35rem 0.7rem', borderRadius: '0.45rem', background: 'rgba(255, 255, 255, 0.04)', color: '#94A3B8' }}>FastAPI</span>
+            <span style={{ padding: '0.35rem 0.7rem', borderRadius: '0.45rem', background: 'rgba(255, 255, 255, 0.04)', color: '#94A3B8' }}>Scrapling</span>
+            <span style={{ padding: '0.35rem 0.7rem', borderRadius: '0.45rem', background: 'rgba(255, 255, 255, 0.04)', color: '#94A3B8' }}>Framer Motion</span>
+            <span style={{ padding: '0.35rem 0.7rem', borderRadius: '0.45rem', background: 'rgba(59, 130, 246, 0.15)', color: '#3B82F6' }}>React + Vite</span>
           </div>
         </div>
       </footer>
